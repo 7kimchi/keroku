@@ -44,6 +44,7 @@ func CaseEmbed(c cases.Case, botID string) *discordgo.MessageEmbed {
 		b.Field("Duration", embeds.Duration(c.Duration), true).
 			Field("Ends", embeds.Relative(c.CreatedAt.Add(c.Duration)), true)
 	}
+	detailFields(b, c.Details)
 	return b.Footer("Case " + strconv.FormatInt(c.Number, 10)).Timestamp(c.CreatedAt).Build()
 }
 
