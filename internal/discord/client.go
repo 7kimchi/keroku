@@ -48,9 +48,10 @@ type AutoMod interface {
 	DeleteAutoModRule(ctx context.Context, guildID, ruleID, reason string) error
 }
 
-// Commands covers slash command registration.
+// Commands covers slash command registration and the bot's own identity.
 type Commands interface {
 	OverwriteCommands(ctx context.Context, appID string, cmds []*discordgo.ApplicationCommand) error
+	Identity(ctx context.Context) (appID, botUserID string, err error)
 }
 
 // Client is everything the bot calls.
