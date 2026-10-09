@@ -9,12 +9,16 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
+	"github.com/7kimchi/keroku/internal/automod"
 	"github.com/7kimchi/keroku/internal/cache"
+	"github.com/7kimchi/keroku/internal/cleanup"
 	"github.com/7kimchi/keroku/internal/commands"
 	"github.com/7kimchi/keroku/internal/config"
 	"github.com/7kimchi/keroku/internal/discord"
 	"github.com/7kimchi/keroku/internal/metrics"
+	"github.com/7kimchi/keroku/internal/moderation"
 	"github.com/7kimchi/keroku/internal/modlog"
+	"github.com/7kimchi/keroku/internal/raid"
 	"github.com/7kimchi/keroku/internal/ratelimit"
 	"github.com/7kimchi/keroku/internal/safe"
 	"github.com/7kimchi/keroku/internal/store"
@@ -25,25 +29,33 @@ import (
 
 // App holds the running components.
 type App struct {
-	cfg         config.Config
-	log         *slog.Logger
-	metrics     *metrics.Metrics
-	guard       *safe.Guard
-	store       *store.Store
-	client      discord.Client
-	ack         *workers.Pool
-	lanes       *workers.Pool
-	userLimit   *ratelimit.Limiter
-	guildLimit  *ratelimit.Limiter
-	seen        *cache.Cache[string, struct{}]
-	registry    *commands.Registry
-	router      *router
-	settings    *store.SettingsCache
-	modlog      *modlog.Poster
-	sweeper     *sweeper.Sweeper
-	appID       string
-	botID       string
-	gatewayHTTP *http.Client // tests point the gateway at a fake
+	cfg        config.Config
+	log        *slog.Logger
+	metrics    *metrics.Metrics
+	guard      *safe.Guard
+	store      *store.Store
+	client     discord.Client
+	ack        *workers.Pool
+	lanes      *workers.Pool
+	userLimit  *ratelimit.Limiter
+	guildLimit *ratelimit.Limiter
+	seen       *cache.Cache[string, struct{}]
+	registry   *commands.Registry
+	router     *router
+	settings   *store.SettingsCache
+	modlog     *modlog.Poster
+	sweeper    *sweeper.Sweeper
+	events     *workers.Pool // automod, raid and logs, keyed by guild
+	mod        *moderation.Service
+	clean      *cleanup.Service
+	automod    *automod.Engine
+	raid       *raid.Detector
+
+	automodSettings *store.Cached[store.AutomodSettings]
+	raidSettings    *store.Cached[store.RaidSettings]
+	appID           string
+	botID           string
+	gatewayHTTP     *http.Client // tests point the gateway at a fake
 }
 
 // New connects to Postgres, migrates and builds every component. Nothing touches the gateway yet.
