@@ -29,7 +29,7 @@ func (f *Fake) CreateAutoModRule(ctx context.Context, guildID string, rule *disc
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	cp := *rule
-	cp.ID, cp.GuildID = f.id(), guildID
+	cp.ID, cp.GuildID, cp.CreatorID = f.id(), guildID, f.botID
 	f.rules[guildID] = append(f.rules[guildID], &cp)
 	return nil
 }
@@ -44,7 +44,7 @@ func (f *Fake) EditAutoModRule(ctx context.Context, guildID, ruleID string, rule
 	for i, r := range f.rules[guildID] {
 		if r.ID == ruleID {
 			cp := *rule
-			cp.ID, cp.GuildID = ruleID, guildID
+			cp.ID, cp.GuildID, cp.CreatorID = ruleID, guildID, r.CreatorID
 			f.rules[guildID][i] = &cp
 			return nil
 		}
