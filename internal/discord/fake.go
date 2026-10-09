@@ -26,6 +26,7 @@ type Fake struct {
 	calls     map[string]int
 	failures  map[string][]error
 	delay     map[string]time.Duration
+	hooks     map[string]func()
 	nextID    int
 	appID     string
 	botID     string
@@ -45,7 +46,7 @@ func NewFake() *Fake {
 		messages: map[string][]*discordgo.Message{}, blocked: map[string]bool{},
 		rules: map[string][]*discordgo.AutoModerationRule{}, responded: map[string]bool{},
 		expired: map[string]bool{}, calls: map[string]int{}, failures: map[string][]error{},
-		delay: map[string]time.Duration{}, nextID: 1000,
+		delay: map[string]time.Duration{}, hooks: map[string]func(){}, nextID: 1000,
 	}
 }
 
