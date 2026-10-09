@@ -37,7 +37,8 @@ func (w *window) observe(userID string, now time.Time, cfg store.RaidSettings) v
 			kept = append(kept, j)
 		}
 	}
-	w.joins = append(kept, join{userID: userID, at: now})
+	kept = append(kept, join{userID: userID, at: now})
+	w.joins = kept
 	if len(w.joins) > maxJoins {
 		w.joins = append([]join(nil), w.joins[len(w.joins)-maxJoins:]...)
 	}
