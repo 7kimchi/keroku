@@ -75,7 +75,7 @@ func exec(ctx context.Context, t testing.TB, url, sql string) {
 	if err != nil {
 		t.Fatalf("connect test server: %v", err)
 	}
-	defer conn.Close(ctx)
+	defer func() { _ = conn.Close(ctx) }()
 	if _, err := conn.Exec(ctx, sql); err != nil {
 		t.Fatalf("%s: %v", sql, err)
 	}
