@@ -1,6 +1,7 @@
 package store_test
 
 import (
+	"io/fs"
 	"strings"
 	"sync"
 	"testing"
@@ -30,8 +31,9 @@ func TestMigrateIsIdempotent(t *testing.T) {
 	if err := pool.QueryRow(t.Context(), `SELECT count(*) FROM "schemaMigrations"`).Scan(&n); err != nil {
 		t.Fatal(err)
 	}
-	if n != 3 {
-		t.Fatalf("%d migrations recorded", n)
+	files, _ := fs.Glob(migrations.Files(), "*.sql")
+	if n != len(files) || n < 4 {
+		t.Fatalf("%d migrations recorded for %d files", n, len(files))
 	}
 }
 
