@@ -23,6 +23,12 @@ func TestHistoryAndCounts(t *testing.T) {
 	if n, err := CountByKind(t.Context(), pool, 1, 2, Warn); err != nil || n != 3 {
 		t.Fatalf("count %d %v", n, err)
 	}
+	if n, err := CountUpTo(t.Context(), pool, 1, 2, Warn, 3); err != nil || n != 2 {
+		t.Fatalf("count up to 3: %d %v", n, err)
+	}
+	if n, _ := CountUpTo(t.Context(), pool, 2, 2, Warn, 100); n != 0 {
+		t.Fatal("count up to across guilds")
+	}
 	w, _ := ListByKind(t.Context(), pool, 1, 2, Warn, 2)
 	if len(w) != 2 || w[0].Number != 5 {
 		t.Fatalf("warnings %v", w)
