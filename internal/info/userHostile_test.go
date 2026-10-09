@@ -13,7 +13,7 @@ func TestUserInfoHostile(t *testing.T) {
 	for i := range roles {
 		roles[i] = rs
 	}
-	evil := strings.Repeat("@everyone [x](https://e.vil) `‮` ", 300)
+	evil := strings.Repeat("@everyone [x](https://e.vil) `\u202e` ", 300)
 	e, err := runUser(t, &resolved{
 		Users:   map[string]*discordgo.User{us: {ID: us, Username: evil, GlobalName: evil}},
 		Members: map[string]*discordgo.Member{us: {Nick: evil, Roles: roles}},
