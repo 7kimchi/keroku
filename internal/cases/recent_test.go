@@ -32,3 +32,15 @@ func TestRecentAndByKey(t *testing.T) {
 		t.Fatal("unknown key matched")
 	}
 }
+
+func TestCount(t *testing.T) {
+	pool := db(t)
+	_, _ = insert(t, pool, newCase(1, 2, Warn))
+	_, _ = insert(t, pool, newCase(1, 2, Ban))
+	if n, err := Count(t.Context(), pool, 1, 2); err != nil || n != 2 {
+		t.Fatalf("count %d %v", n, err)
+	}
+	if n, _ := Count(t.Context(), pool, 2, 2); n != 0 {
+		t.Fatal("count across guilds")
+	}
+}
