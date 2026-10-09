@@ -6,6 +6,7 @@ import (
 	"github.com/7kimchi/keroku/internal/automod"
 	"github.com/7kimchi/keroku/internal/cleanup"
 	"github.com/7kimchi/keroku/internal/commands"
+	"github.com/7kimchi/keroku/internal/eventlog"
 	"github.com/7kimchi/keroku/internal/moderation"
 	"github.com/7kimchi/keroku/internal/raid"
 	"github.com/7kimchi/keroku/internal/records"
@@ -34,8 +35,11 @@ func (a *App) services() error {
 		Modlog: a.modlog, Pool: a.events, Metrics: a.metrics, Log: a.log, BotID: botID}); err != nil {
 		return err
 	}
-	a.raid, err = raid.New(raid.Deps{Settings: a.raidSettings, Moderation: a.mod, Cleanup: a.clean,
-		Modlog: a.modlog, Pool: a.events, Metrics: a.metrics, Log: a.log, BotID: botID})
+	if a.raid, err = raid.New(raid.Deps{Settings: a.raidSettings, Moderation: a.mod, Cleanup: a.clean,
+		Modlog: a.modlog, Pool: a.events, Metrics: a.metrics, Log: a.log, BotID: botID}); err != nil {
+		return err
+	}
+	a.eventlog, err = eventlog.New(a.modlog, a.settings, a.events, a.metrics, nil)
 	return err
 }
 
