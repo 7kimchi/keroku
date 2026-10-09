@@ -49,3 +49,29 @@ func TestAutomodAndRaidEndToEnd(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// A message deleted after it was seen shows up in the log channel with its text.
+func TestDeleteLogEndToEnd(t *testing.T) {
+	gw := gatewaytest.New(t, 1)
+	a, fake := newTestApp(t, testConfig())
+	a.gatewayHTTP = gw.Client()
+	const g, ch, logs = "100000000000000001", "100000000000000010", "100000000000000011"
+	fake.AddGuild(g, "100000000000000002", 0)
+	fake.AddChannel(g, ch)
+	fake.AddChannel(g, logs)
+	_ = a.store.SetLogChannel(t.Context(), 100000000000000001, 100000000000000011)
+	cancel, done := runApp(t, a)
+	defer cancel()
+	waitUntil(t, func() bool { return len(gw.Identified()) == 1 })
+	gw.Broadcast(fmt.Sprintf(`"t":"MESSAGE_CREATE","d":{"id":"5","channel_id":%q,"guild_id":%q,"content":"secret plan",`+
+		`"author":{"id":"100000000000000007"},"member":{"roles":[]}}`, ch, g))
+	gw.Broadcast(fmt.Sprintf(`"t":"MESSAGE_DELETE","d":{"id":"5","channel_id":%q,"guild_id":%q}`, ch, g))
+	waitUntil(t, func() bool { return len(fake.SentTo(logs)) == 1 })
+	if got := fake.SentTo(logs)[0]; got.Title != "Message deleted" || got.Fields[2].Value != "secret plan" {
+		t.Fatalf("log %+v", got)
+	}
+	cancel()
+	if err := waitDone(t, done); err != nil {
+		t.Fatal(err)
+	}
+}
