@@ -31,6 +31,7 @@ func (e *Engine) act(ctx context.Context, gid int64, m *discordgo.Message, cfg s
 		_, err = e.d.Moderation.Execute(ctx, moderation.Action{
 			Kind: cases.Timeout, GuildID: gid, TargetID: uid, ModeratorID: e.d.BotID, Reason: reason,
 			Duration: cfg.Timeout, IdempotencyKey: "automod:" + m.ID, Automated: true,
+			Details: cases.Details{Source: cases.FromAutomod, Rule: rule},
 		})
 		if err == nil {
 			return
