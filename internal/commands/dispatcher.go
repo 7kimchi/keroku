@@ -24,7 +24,7 @@ type Deps struct {
 	Client         discord.Interactions
 	Registry       *Registry
 	Ack            *workers.Pool // fast lane: validate, rate limit, defer
-	Lanes          *workers.Pool // keyed by guild: run handlers in order per guild
+	Lanes          *workers.Pool // keyed by laneKey: run handlers in order per target
 	UserLimit      *ratelimit.Limiter
 	GuildLimit     *ratelimit.Limiter
 	Seen           *cache.Cache[string, struct{}]
@@ -92,7 +92,7 @@ func (x *Dispatcher) ack(ctx context.Context, i *discordgo.Interaction) {
 	if !x.respond(ctx, i, deferred()) {
 		return
 	}
-	if !x.d.Lanes.Submit(req.GuildID, func(ctx context.Context) { x.run(ctx, cmd, req) }) {
+	if !x.d.Lanes.Submit(laneKey(cmd, req), func(ctx context.Context) { x.run(ctx, cmd, req) }) {
 		x.d.Metrics.EventsDropped.WithLabelValues("laneFull").Inc()
 		x.edit(ctx, req, errorEmbed("Command failed", "Busy. Try again in a few seconds."))
 	}
