@@ -32,7 +32,11 @@ func TestCheckOrderAndCodes(t *testing.T) {
 		{"higher role", func(r *Request) { r.TargetRoles = []string{"admin"} }, InvokerTooLow},
 		{"invoker no roles", func(r *Request) { r.InvokerRoles = nil; r.TargetRoles = nil }, InvokerTooLow},
 		{"bot too low", func(r *Request) { r.BotRoles = []string{"member"} }, BotTooLow},
-		{"bot equal", func(r *Request) { r.BotRoles = []string{"mod"}; r.InvokerRoles = []string{"admin"}; r.TargetRoles = []string{"mod2"} }, BotTooLow},
+		{"bot equal", func(r *Request) {
+			r.BotRoles = []string{"mod"}
+			r.InvokerRoles = []string{"admin"}
+			r.TargetRoles = []string{"mod2"}
+		}, BotTooLow},
 		{"bot missing perm", func(r *Request) { r.BotPerms = KickMembers }, BotMissingPermission},
 		{"admin bot perms", func(r *Request) { r.BotPerms = Administrator }, 0},
 		{"admin invoker perms", func(r *Request) { r.InvokerPerms = Administrator }, 0},
