@@ -29,6 +29,9 @@ func (x *Dispatcher) run(ctx context.Context, cmd Command, req *Request) {
 	switch {
 	case panicked:
 		result, reply = "panic", internalError(req.Ref)
+	case errors.As(err, &userErr) && userErr.Cause != nil:
+		result, reply = "error", errorEmbed(userErr.Title, userErr.Detail+" Ref "+req.Ref+".")
+		x.d.Log.Error("command failed", "ref", req.Ref, "command", req.Name, "guildId", req.GuildID, "err", userErr.Cause)
 	case errors.As(err, &userErr):
 		result, reply = "refused", errorEmbed(userErr.Title, userErr.Detail)
 	case err != nil:
