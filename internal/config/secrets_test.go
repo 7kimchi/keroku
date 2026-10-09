@@ -65,7 +65,7 @@ func TestSecretNeverPrints(t *testing.T) {
 func TestErrorsDoNotContainSecret(t *testing.T) {
 	m := base()
 	m["DISCORD_TOKEN"] = "not a token secretvalue"
-	err := mustFail(t, m, nil)
+	err := loadErr(t, m, nil)
 	if strings.Contains(err.Error(), "secretvalue") {
 		t.Fatalf("error leaks value: %v", err)
 	}
