@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/7kimchi/keroku/internal/cases"
-	"github.com/7kimchi/keroku/internal/discord"
 	"github.com/7kimchi/keroku/internal/validate"
 )
 
@@ -65,17 +64,4 @@ func (s *Service) compensate(ctx context.Context, a Action, cause error) error {
 		return incomplete(a, "Applied in Discord, but the case could not be saved and reverting failed.", cause)
 	}
 	return failWith(a, "The case could not be saved, so the action was reverted.", cause)
-}
-
-// discordFailure explains a failed Discord call in plain words.
-func discordFailure(a Action, err error) error {
-	switch discord.KindOf(err) {
-	case discord.Forbidden:
-		return refuse(a, "Discord refused the request. Check Keroku's role position and permissions.")
-	case discord.NotFound:
-		return refuse(a, "Member or server not found.")
-	case discord.RateLimited, discord.Unavailable, discord.Timeout:
-		return failWith(a, "Discord did not respond in time. Nothing was changed.", err)
-	}
-	return failWith(a, "Nothing was changed.", err)
 }
