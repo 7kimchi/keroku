@@ -1,23 +1,40 @@
 package app
 
 import (
+	"context"
 	"time"
 
 	"github.com/7kimchi/keroku/internal/cache"
+	"github.com/7kimchi/keroku/internal/cleanup"
 	"github.com/7kimchi/keroku/internal/commands"
+	"github.com/7kimchi/keroku/internal/moderation"
+	"github.com/7kimchi/keroku/internal/modlog"
 	"github.com/7kimchi/keroku/internal/ratelimit"
+	"github.com/7kimchi/keroku/internal/records"
+	"github.com/7kimchi/keroku/internal/settings"
+	"github.com/7kimchi/keroku/internal/store"
 	"github.com/7kimchi/keroku/internal/workers"
 )
 
 // Limits on per process state. Each bounds memory no matter how many users show up.
 const (
-	maxLimiterKeys = 200_000
-	maxSeen        = 200_000
+	maxLimiterKeys  = 200_000
+	maxSeen         = 200_000
+	maxCachedGuilds = 50_000
 )
 
-// build creates the queues, limiters and dispatcher.
-func (a *App) build() error {
+// build resolves the bot's identity and creates the queues, limiters, services and dispatcher.
+func (a *App) build(ctx context.Context) error {
 	var err error
+	if a.appID, a.botID, err = a.client.Identity(ctx); err != nil {
+		return err
+	}
+	if a.settings, err = store.NewSettingsCache(a.store, maxCachedGuilds, time.Minute); err != nil {
+		return err
+	}
+	if a.modlog, err = modlog.New(a.client, a.settings, 8, 1024, a.metrics, a.log, a.guard); err != nil {
+		return err
+	}
 	if a.ack, err = workers.New("ack", max(2, a.cfg.Workers/4), a.cfg.QueueSize, a.guard); err != nil {
 		return err
 	}
@@ -47,5 +64,18 @@ func (a *App) build() error {
 
 // commandList returns every slash command.
 func (a *App) commandList() []commands.Command {
-	return nil
+	mod := moderation.New(moderation.Deps{Store: a.store, Client: a.client, Modlog: a.modlog,
+		Metrics: a.metrics, Log: a.log, BotID: a.botID})
+	rec := records.Deps{Store: a.store, Modlog: a.modlog, BotID: a.botID}
+	clean := cleanup.New(a.store, a.client, a.modlog, nil)
+	cfg := settings.Deps{Store: a.store, Settings: a.settings, Client: a.client, BotID: a.botID}
+	return []commands.Command{
+		moderation.BanCommand{S: mod}, moderation.UnbanCommand{S: mod}, moderation.KickCommand{S: mod},
+		moderation.TimeoutCommand{S: mod}, moderation.UntimeoutCommand{S: mod}, moderation.WarnCommand{S: mod},
+		moderation.NoteCommand{S: mod},
+		records.CaseCommand{D: rec}, records.HistoryCommand{D: rec}, records.WarningsCommand{D: rec},
+		cleanup.PurgeCommand{S: clean}, cleanup.SlowmodeCommand{S: clean}, cleanup.LockCommand{S: clean},
+		cleanup.UnlockCommand{S: clean}, cleanup.LockdownCommand{S: clean},
+		settings.ConfigCommand{D: cfg},
+	}
 }
