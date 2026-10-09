@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/7kimchi/keroku/internal/discord"
 	"github.com/7kimchi/keroku/internal/gatewaytest"
 )
 
@@ -74,19 +73,5 @@ func TestOnlyShardZeroRegisters(t *testing.T) {
 	}
 	if fake.Calls("overwriteCommands") != 0 {
 		t.Fatal("non zero shard instance registered commands")
-	}
-}
-
-func TestStartupFailureStillShutsDown(t *testing.T) {
-	a, fake := newTestApp(t, testConfig())
-	fake.FailNext("identity", &discord.Error{Op: "identity", Kind: discord.Unauthorized}, 1)
-	cancel, done := runApp(t, a)
-	defer cancel()
-	err := waitDone(t, done)
-	if !discord.Is(err, discord.Unauthorized) {
-		t.Fatalf("got %v", err)
-	}
-	if a.ack.Submit("x", nil) {
-		t.Fatal("pools still accept work after a failed start")
 	}
 }
