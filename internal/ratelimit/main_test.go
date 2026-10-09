@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/goleak"
 
-	"github.com/keroku/keroku/internal/clock"
+	"github.com/7kimchi/keroku/internal/clock"
 )
 
 func TestMain(m *testing.M) {
