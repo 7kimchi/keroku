@@ -20,7 +20,7 @@ func TestSetAndClearChannels(t *testing.T) {
 	if err != nil || e.Title != "Modlog channel set" {
 		t.Fatalf("%+v %v", e, err)
 	}
-	if e, err = c.Handle(ctx, request(t, []string{"logs"}, opt("channel", tChan, "100000000000000010"))); err != nil {
+	if logs, err := c.Handle(ctx, request(t, []string{"logs"}, opt("channel", tChan, "100000000000000010"))); err != nil || logs.Title != "Log channel set" {
 		t.Fatal(err)
 	}
 	view, _ := c.Handle(ctx, request(t, []string{"view"}))
