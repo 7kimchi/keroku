@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/keroku/keroku/internal/clock"
+	"github.com/7kimchi/keroku/internal/clock"
 )
 
 func newTest(t *testing.T, size int, ttl time.Duration) (*Cache[string, int], *clock.Manual) {
