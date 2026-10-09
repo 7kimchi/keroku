@@ -31,7 +31,13 @@ func base() map[string]string {
 	return map[string]string{"DISCORD_TOKEN": fakeToken, "DATABASE_URL": "postgres://u:p@db/keroku"}
 }
 
-func mustFail(t *testing.T, vars map[string]string, files map[string]string) error {
+func mustFail(t *testing.T, vars map[string]string, files map[string]string) {
+	t.Helper()
+	_ = loadErr(t, vars, files)
+}
+
+// loadErr loads and fails the test unless loading returned an error, which it returns.
+func loadErr(t *testing.T, vars map[string]string, files map[string]string) error {
 	t.Helper()
 	_, err := Load(env(vars, files))
 	if err == nil {
@@ -56,7 +62,7 @@ func TestReadFileErrorIsWrapped(t *testing.T) {
 	m := base()
 	delete(m, "DISCORD_TOKEN")
 	m["DISCORD_TOKEN_FILE"] = "/missing"
-	if err := mustFail(t, m, nil); !errors.Is(err, fs.ErrNotExist) {
+	if err := loadErr(t, m, nil); !errors.Is(err, fs.ErrNotExist) {
 		t.Fatalf("got %v", err)
 	}
 }
