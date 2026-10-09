@@ -53,7 +53,7 @@ func (f *Fake) BulkDelete(ctx context.Context, channelID string, ids []string, _
 	for _, id := range ids {
 		drop[id] = true
 	}
-	cutoff := time.Now().Add(-14 * 24 * time.Hour)
+	cutoff := f.now().Add(-14 * 24 * time.Hour)
 	for _, m := range f.messages[channelID] {
 		if drop[m.ID] && m.Timestamp.Before(cutoff) {
 			return &Error{Op: "bulkDelete", Kind: BadRequest, Status: 400, Code: 50034}
