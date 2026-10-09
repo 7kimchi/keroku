@@ -1,4 +1,4 @@
-module github.com/keroku/keroku
+module github.com/7kimchi/keroku
 
 go 1.27.2
 
