@@ -59,11 +59,18 @@ func New(d Deps) *Sweeper {
 func (s *Sweeper) Run(ctx context.Context) {
 	t := time.NewTimer(0)
 	defer t.Stop()
+	lastPrune := time.Time{}
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-t.C:
+		}
+		if now := s.d.Now(); now.Sub(lastPrune) >= time.Hour {
+			lastPrune = now
+			if _, err := s.d.Store.Prune(ctx, now); err != nil {
+				s.d.Log.Warn("prune failed", "err", err)
+			}
 		}
 		for ctx.Err() == nil {
 			worked, err := s.Once(ctx)
