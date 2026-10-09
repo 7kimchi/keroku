@@ -80,6 +80,10 @@ func (x *Dispatcher) ack(ctx context.Context, i *discordgo.Interaction) {
 		x.respond(ctx, i, immediate(errorEmbed("Command failed", "Unknown command.")))
 		return
 	}
+	if missing, ok := missingPermission(cmd, req); ok {
+		x.respond(ctx, i, immediate(errorEmbed("Command failed", "Missing permission: "+missing+".")))
+		return
+	}
 	if wait, limited := x.limited(req); limited {
 		retry := embeds.Relative(x.d.Now().Add(wait))
 		x.respond(ctx, i, immediate(errorEmbed("Rate limited", "Try again "+retry+".")))
