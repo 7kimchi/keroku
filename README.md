@@ -58,3 +58,7 @@ scripts/check.sh          # every gate, including tests against a throwaway Post
 ```
 
 Tests need Postgres binaries on the path. `scripts/testDb.sh start` starts a local test server in `.tmp/`.
+
+## License
+
+Source available. You may run and modify Keroku for servers you own or administer. You may not redistribute it or host it for other servers. See [LICENSE](LICENSE).
