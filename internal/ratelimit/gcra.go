@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/keroku/keroku/internal/cache"
+	"github.com/7kimchi/keroku/internal/cache"
 )
 
 // Limiter allows burst requests at once, then one every interval.
