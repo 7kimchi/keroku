@@ -31,7 +31,7 @@ func Insert(ctx context.Context, tx pgx.Tx, n New) (Case, error) {
 	}
 	row := tx.QueryRow(ctx, `INSERT INTO "cases" ("guildId", "number", "kind", "targetId", "moderatorId", "reason",
 		"durationSeconds", "interactionId", "idempotencyKey")
-		VALUES ($1, $2, $3, $4, $5, $6, nullif($7, 0), nullif($8, 0), nullif($9, ''))
+		VALUES ($1, $2, $3, $4, $5, $6, nullif($7::bigint, 0), nullif($8::bigint, 0), nullif($9::text, ''))
 		RETURNING `+columns, n.GuildID, number, string(n.Kind), n.TargetID, n.ModeratorID, n.Reason,
 		int64(n.Duration/time.Second), n.InteractionID, n.IdempotencyKey)
 	c, err := scan(row)
