@@ -59,10 +59,12 @@ func ListByKind(ctx context.Context, q store.Querier, guildID, targetID int64, k
 	return scanAll(rows)
 }
 
-// Recent finds a case of kind against target created after since. Used to catch double submits.
-func Recent(ctx context.Context, q store.Querier, guildID, targetID int64, kind Kind, since time.Time) (Case, bool, error) {
+// Recent finds a case of kind against target created after since, by moderatorID or by
+// anyone when moderatorID is 0. Used to catch double submits.
+func Recent(ctx context.Context, q store.Querier, guildID, targetID int64, kind Kind, moderatorID int64, since time.Time) (Case, bool, error) {
 	c, err := scan(q.QueryRow(ctx, `SELECT `+columns+` FROM "cases" WHERE "guildId" = $1 AND "targetId" = $2
-		AND "kind" = $3 AND "createdAt" > $4 ORDER BY "createdAt" DESC LIMIT 1`, guildID, targetID, string(kind), since))
+		AND "kind" = $3 AND "createdAt" > $4 AND ($5::bigint = 0 OR "moderatorId" = $5)
+		ORDER BY "number" DESC LIMIT 1`, guildID, targetID, string(kind), since, moderatorID))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Case{}, false, nil
 	}
