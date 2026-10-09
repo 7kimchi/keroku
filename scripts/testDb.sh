@@ -5,6 +5,16 @@ export LC_ALL=C
 cd "$(dirname "$0")/.."
 dataDir="$PWD/.tmp/pgdata"
 port="${KEROKU_TEST_PG_PORT:-54329}"
+pgMajor=18
+version="$(initdb --version | awk '{print $3}')"
+if [ "${version%%.*}" != "$pgMajor" ]; then
+  echo "need PostgreSQL $pgMajor binaries on PATH, found $version" >&2
+  exit 1
+fi
+if [ -f "$dataDir/PG_VERSION" ] && [ "$(cat "$dataDir/PG_VERSION")" != "$pgMajor" ]; then
+  echo "$dataDir is from PostgreSQL $(cat "$dataDir/PG_VERSION"). Move it aside and rerun." >&2
+  exit 1
+fi
 case "${1:-start}" in
   start)
     if [ ! -f "$dataDir/PG_VERSION" ]; then
