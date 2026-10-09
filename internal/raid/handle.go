@@ -68,7 +68,8 @@ func (x *Detector) handle(ctx context.Context, guildID, userID string, joinedAt 
 func (x *Detector) remove(ctx context.Context, gid int64, userID string, joinedAt time.Time, action, reason string) {
 	uid, _ := validate.Snowflake(userID)
 	a := moderation.Action{Kind: cases.Kick, GuildID: gid, TargetID: uid, ModeratorID: x.d.BotID, Reason: reason,
-		IdempotencyKey: "raid:" + userID + ":" + strconv.FormatInt(joinedAt.UnixNano(), 10), Automated: true}
+		IdempotencyKey: "raid:" + userID + ":" + strconv.FormatInt(joinedAt.UnixNano(), 10), Automated: true,
+		Details: cases.Details{Source: cases.FromRaid}}
 	if action == "ban" {
 		a.Kind, a.DeleteSeconds = cases.Ban, 3600
 	}
