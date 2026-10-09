@@ -1,0 +1,24 @@
+version: "2"
+
+run:
+  timeout: 5m
+  build-tags:
+    - load
+
+linters:
+  default: standard
+  enable:
+    - bodyclose
+    - copyloopvar
+    - errorlint
+    - misspell
+    - nilerr
+    - noctx
+    - unconvert
+    - contextcheck
+    - errname
+    - gocritic
+
+formatters:
+  enable:
+    - gofmt
