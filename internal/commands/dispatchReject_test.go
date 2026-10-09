@@ -1,8 +1,12 @@
 package commands
 
 import (
+	"sync/atomic"
+
 	"strings"
 	"testing"
+
+	"github.com/7kimchi/keroku/internal/perms"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -38,5 +42,20 @@ func TestDispatchIgnoresOtherTypes(t *testing.T) {
 	h.drain()
 	if h.fake.Calls("respond") != 0 {
 		t.Fatal("responded to a non command")
+	}
+}
+
+func TestDispatchChecksInvokerPermission(t *testing.T) {
+	var runs atomic.Int64
+	h := newHarness(t, 5, counting("ban", &runs))
+	i := interaction("ban")
+	i.Member.Permissions = 0
+	h.d.Interaction(i)
+	admin := interaction("ban")
+	admin.Member.Permissions = perms.Administrator
+	h.d.Interaction(admin)
+	h.drain()
+	if lastReply(t, h, i.ID).Description != "Missing permission: Ban Members." || runs.Load() != 1 {
+		t.Fatalf("got %q, runs %d", lastReply(t, h, i.ID).Description, runs.Load())
 	}
 }
