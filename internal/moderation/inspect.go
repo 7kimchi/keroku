@@ -7,7 +7,6 @@ import (
 
 	"github.com/7kimchi/keroku/internal/cases"
 	"github.com/7kimchi/keroku/internal/commands"
-	"github.com/7kimchi/keroku/internal/discord"
 	"github.com/7kimchi/keroku/internal/perms"
 	"github.com/7kimchi/keroku/internal/validate"
 )
@@ -20,26 +19,18 @@ type state struct {
 // inspect fetches the guild, the target and the bot fresh over REST, runs the hierarchy
 // check and confirms the target is in a state the action applies to.
 func (s *Service) inspect(ctx context.Context, a Action) (state, error) {
-	gid, tid := validate.FormatSnowflake(a.GuildID), validate.FormatSnowflake(a.TargetID)
-	g, err := s.client.Guild(ctx, gid)
+	f, err := s.fetch(ctx, a)
 	if err != nil {
 		return state{}, err
 	}
-	member, err := s.client.Member(ctx, gid, tid)
-	if err != nil && !discord.Is(err, discord.NotFound) {
-		return state{}, err
-	}
-	bot, err := s.client.Member(ctx, gid, s.botID)
-	if err != nil {
-		return state{}, err
-	}
+	g, member, tid := f.guild, f.member, validate.FormatSnowflake(a.TargetID)
 	req := perms.Request{
 		Guild: g, Need: need(a.Kind), Automated: a.Automated,
 		InvokerID: validate.FormatSnowflake(a.ModeratorID), InvokerRoles: a.InvokerRoles, InvokerPerms: a.InvokerPerms,
-		BotID: s.botID, BotRoles: bot.Roles, BotPerms: a.BotPerms, TargetID: tid,
+		BotID: s.botID, BotRoles: f.bot.Roles, BotPerms: a.BotPerms, TargetID: tid,
 	}
 	if a.Automated || req.BotPerms == 0 {
-		req.BotPerms = perms.Base(g, s.botID, bot.Roles)
+		req.BotPerms = perms.Base(g, s.botID, f.bot.Roles)
 	}
 	if member != nil {
 		req.TargetRoles, req.TargetMember = member.Roles, true
@@ -47,10 +38,11 @@ func (s *Service) inspect(ctx context.Context, a Action) (state, error) {
 	if d := perms.Check(req); d != nil {
 		return state{}, refuse(a, d.Message())
 	}
-	return state{guild: g, member: member}, s.stateCheck(ctx, a, g, member)
+	return state{guild: g, member: member}, s.stateCheck(a, g, f)
 }
 
-func (s *Service) stateCheck(ctx context.Context, a Action, g *discordgo.Guild, m *discordgo.Member) error {
+func (s *Service) stateCheck(a Action, g *discordgo.Guild, f fetched) error {
+	m := f.member
 	switch a.Kind {
 	case cases.Kick, cases.Timeout, cases.Untimeout:
 		if m == nil {
@@ -67,14 +59,13 @@ func (s *Service) stateCheck(ctx context.Context, a Action, g *discordgo.Guild, 
 			return refuse(a, "Not timed out.")
 		}
 	case cases.Ban, cases.Unban:
-		banned, err := s.client.IsBanned(ctx, g.ID, validate.FormatSnowflake(a.TargetID))
-		if err != nil {
-			return err
+		if f.banErr != nil {
+			return f.banErr
 		}
-		if a.Kind == cases.Ban && banned {
+		if a.Kind == cases.Ban && f.banned {
 			return refuse(a, "Already banned.")
 		}
-		if a.Kind == cases.Unban && !banned {
+		if a.Kind == cases.Unban && !f.banned {
 			return refuse(a, NotBanned)
 		}
 	}
