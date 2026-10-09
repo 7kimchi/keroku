@@ -24,7 +24,7 @@ func TestServeRefusesNonLoopback(t *testing.T) {
 }
 
 func TestServeAndShutdown(t *testing.T) {
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	ln, err := new(net.ListenConfig).Listen(t.Context(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -62,11 +62,11 @@ func TestServeAndShutdown(t *testing.T) {
 }
 
 func TestServePortInUse(t *testing.T) {
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	ln, err := new(net.ListenConfig).Listen(t.Context(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer ln.Close()
+	defer func() { _ = ln.Close() }()
 	if err := New().Serve(t.Context(), ln.Addr().String(), guard()); err == nil {
 		t.Fatal("bound a port already in use")
 	}
@@ -79,7 +79,7 @@ func get(t *testing.T, url string, want int) string {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	b, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != want {
 		t.Fatalf("%s: got %d", url, resp.StatusCode)
