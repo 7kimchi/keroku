@@ -2,7 +2,7 @@
 
 Discord moderation and logging bot. Slash commands only. Written in Go, backed by PostgreSQL.
 
-Keroku connects to Discord over the gateway and opens no public port. Command replies are ephemeral: only the moderator who ran the command sees them. Every moderation case is posted to the modlog channel.
+Keroku connects to Discord over the gateway and opens no public port. Command replies are ephemeral: only the member who ran the command sees them. Every moderation case is posted to the modlog channel.
 
 ## Run
 
@@ -18,7 +18,7 @@ The schema is migrated on startup. Several instances can start at once: migratio
 
 ## Commands
 
-[Moderation](docs/commands/moderation.md), [records](docs/commands/records.md), [cleanup](docs/commands/cleanup.md) and [settings](docs/commands/settings.md).
+[Moderation](docs/commands/moderation.md), [records](docs/commands/records.md), [cleanup](docs/commands/cleanup.md), [settings](docs/commands/settings.md) and [info](docs/commands/info.md).
 
 ## Discord permissions
 
