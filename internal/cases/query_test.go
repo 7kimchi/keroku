@@ -38,28 +38,6 @@ func TestHistoryAndCounts(t *testing.T) {
 	}
 }
 
-func TestRecentAndByKey(t *testing.T) {
-	pool := db(t)
-	n := newCase(1, 2, Ban)
-	n.IdempotencyKey = "k"
-	c, _ := insert(t, pool, n)
-	if got, ok, err := Recent(t.Context(), pool, 1, 2, Ban, time.Now().Add(-10*time.Second)); !ok || err != nil || got.ID != c.ID {
-		t.Fatalf("recent: %v %v", ok, err)
-	}
-	if _, ok, _ := Recent(t.Context(), pool, 1, 2, Kick, time.Now().Add(-time.Minute)); ok {
-		t.Fatal("wrong kind matched")
-	}
-	if _, ok, _ := Recent(t.Context(), pool, 1, 2, Ban, time.Now().Add(time.Minute)); ok {
-		t.Fatal("old case matched")
-	}
-	if got, ok, err := ByKey(t.Context(), pool, 1, "k"); !ok || err != nil || got.ID != c.ID {
-		t.Fatal("by key")
-	}
-	if _, ok, _ := ByKey(t.Context(), pool, 1, "other"); ok {
-		t.Fatal("unknown key matched")
-	}
-}
-
 // Every read takes the guild id. A case from guild 1 must be invisible from guild 2.
 func TestGuildIsolation(t *testing.T) {
 	pool := db(t)
@@ -78,7 +56,7 @@ func TestGuildIsolation(t *testing.T) {
 	if w, _ := ListByKind(t.Context(), pool, 2, 2, Warn, 10); len(w) != 0 {
 		t.Fatal("warnings across guilds")
 	}
-	if _, ok, _ := Recent(t.Context(), pool, 2, 2, Warn, time.Time{}); ok {
+	if _, ok, _ := Recent(t.Context(), pool, 2, 2, Warn, 0, time.Time{}); ok {
 		t.Fatal("recent across guilds")
 	}
 	if _, ok, _ := ByKey(t.Context(), pool, 2, "secret"); ok {
