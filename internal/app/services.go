@@ -7,6 +7,7 @@ import (
 	"github.com/7kimchi/keroku/internal/cleanup"
 	"github.com/7kimchi/keroku/internal/commands"
 	"github.com/7kimchi/keroku/internal/eventlog"
+	"github.com/7kimchi/keroku/internal/info"
 	"github.com/7kimchi/keroku/internal/moderation"
 	"github.com/7kimchi/keroku/internal/raid"
 	"github.com/7kimchi/keroku/internal/records"
@@ -49,6 +50,7 @@ func (a *App) commandList() []commands.Command {
 	rec := records.Deps{Store: a.store, Modlog: a.modlog, BotID: a.botID}
 	cfg := settings.Deps{Store: a.store, Settings: a.settings, Automod: a.automodSettings, Raid: a.raidSettings,
 		Client: a.client, BotID: a.botID}
+	look := info.Deps{Client: a.client, Started: a.started, Version: info.Version()}
 	return []commands.Command{
 		moderation.BanCommand{S: mod}, moderation.UnbanCommand{S: mod}, moderation.KickCommand{S: mod},
 		moderation.TimeoutCommand{S: mod}, moderation.UntimeoutCommand{S: mod}, moderation.WarnCommand{S: mod},
@@ -57,5 +59,7 @@ func (a *App) commandList() []commands.Command {
 		cleanup.PurgeCommand{S: clean}, cleanup.SlowmodeCommand{S: clean}, cleanup.LockCommand{S: clean},
 		cleanup.UnlockCommand{S: clean}, cleanup.LockdownCommand{S: clean},
 		settings.ConfigCommand{D: cfg},
+		info.ServerInfoCommand{D: look}, info.BotInfoCommand{D: look}, info.UserInfoCommand{D: look},
+		info.RoleInfoCommand{D: look},
 	}
 }
