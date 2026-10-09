@@ -9,7 +9,7 @@ import (
 
 func FuzzUserEmbed(f *testing.F) {
 	f.Add("name", "global", "nick", rs, int64(0))
-	f.Add("@everyone", "\x00‮", "[a](b)", "<@&1>", int64(-1))
+	f.Add("@everyone", "\x00\u202e", "[a](b)", "<@&1>", int64(-1))
 	f.Fuzz(func(t *testing.T, user, global, nick, role string, joined int64) {
 		u := &discordgo.User{ID: us, Username: user, GlobalName: global}
 		m := &discordgo.Member{Nick: nick, Roles: []string{role, rs}, JoinedAt: time.Unix(joined%1e10, 0)}
