@@ -6,9 +6,9 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/keroku/keroku/internal/dbtest"
-	"github.com/keroku/keroku/internal/store"
-	"github.com/keroku/keroku/migrations"
+	"github.com/7kimchi/keroku/internal/dbtest"
+	"github.com/7kimchi/keroku/internal/store"
+	"github.com/7kimchi/keroku/migrations"
 )
 
 func sqlFS(files map[string]string) fstest.MapFS {
