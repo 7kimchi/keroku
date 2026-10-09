@@ -75,7 +75,7 @@ func (s *Service) stateCheck(ctx context.Context, a Action, g *discordgo.Guild, 
 			return refuse(a, "Already banned.")
 		}
 		if a.Kind == cases.Unban && !banned {
-			return refuse(a, "Not banned.")
+			return refuse(a, NotBanned)
 		}
 	}
 	return nil
