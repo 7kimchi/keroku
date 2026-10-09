@@ -40,7 +40,7 @@ func (s *Sweeper) unban(ctx context.Context, job store.Job) outcome {
 	_, err := s.d.Moderation.Execute(ctx, moderation.Action{
 		Kind: cases.Unban, GuildID: job.GuildID, TargetID: job.TargetID, ModeratorID: s.d.BotID,
 		Reason: "Temporary ban ended.", IdempotencyKey: "timer:" + strconv.FormatInt(job.ID, 10),
-		Automated: true, FromTimer: true,
+		Automated: true, FromTimer: true, Details: cases.Details{Source: cases.FromTimer, TimerID: job.ID},
 	})
 	var refused *commands.UserError
 	if err != nil && asUserErr(err, &refused) && refused.Detail == moderation.NotBanned {
