@@ -13,9 +13,9 @@ import (
 )
 
 func counting(name string, n *atomic.Int64) stub {
-	return stub{name, func(context.Context, *Request) (*discordgo.MessageEmbed, error) {
+	return stub{name, func(ctx context.Context, r *Request) (*discordgo.MessageEmbed, error) {
 		n.Add(1)
-		return okCmd(name).fn(context.Background(), nil)
+		return okCmd(name).fn(ctx, r)
 	}}
 }
 
