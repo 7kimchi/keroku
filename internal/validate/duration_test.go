@@ -14,7 +14,6 @@ func TestDurationAccepts(t *testing.T) {
 		"1m":           time.Minute,
 		"1d4h":         day + 4*time.Hour,
 		"1W2D3H4M5S":   7*day + 2*day + 3*time.Hour + 4*time.Minute + 5*time.Second,
-		" 2h ":         2 * time.Hour,
 		"90m":          90 * time.Minute,
 		"28d":          28 * day,
 		"0001h":        time.Hour,
@@ -38,6 +37,12 @@ func TestDurationAccepts(t *testing.T) {
 		if err != nil || got != want {
 			t.Fatalf("%q: got %v %v", in, got, err)
 		}
+	}
+}
+
+func TestDurationTrims(t *testing.T) {
+	if got, err := Duration("\t2h\n", time.Second, 28*day); err != nil || got != 2*time.Hour {
+		t.Fatalf("got %v %v", got, err)
 	}
 }
 
