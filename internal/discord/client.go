@@ -54,6 +54,12 @@ type Commands interface {
 	Identity(ctx context.Context) (appID, botUserID string, err error)
 }
 
+// Info covers the read only calls behind the info commands.
+type Info interface {
+	GuildCounts(ctx context.Context, guildID string) (*discordgo.Guild, error)
+	ServerCount(ctx context.Context) (int, error)
+}
+
 // Client is everything the bot calls.
 type Client interface {
 	Members
@@ -61,6 +67,7 @@ type Client interface {
 	Interactions
 	AutoMod
 	Commands
+	Info
 }
 
 // NoMentions blocks every ping. It is attached to every message the bot sends.
