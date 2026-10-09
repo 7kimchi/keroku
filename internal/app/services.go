@@ -27,7 +27,7 @@ func (a *App) services() error {
 	}
 	botID, _ := validate.Snowflake(a.botID)
 	a.mod = moderation.New(moderation.Deps{Store: a.store, Client: a.client, Modlog: a.modlog,
-		Metrics: a.metrics, Log: a.log, BotID: a.botID})
+		Metrics: a.metrics, Log: a.log, Guard: a.guard, BotID: a.botID})
 	a.clean = cleanup.New(a.store, a.client, a.modlog, nil)
 	a.sweeper = sweeper.New(sweeper.Deps{Store: a.store, Client: a.client, Moderation: a.mod, Cleanup: a.clean,
 		Modlog: a.modlog, Metrics: a.metrics, Log: a.log, BotID: botID})
