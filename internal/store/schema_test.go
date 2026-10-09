@@ -5,7 +5,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/keroku/keroku/internal/dbtest"
+	"github.com/7kimchi/keroku/internal/dbtest"
 )
 
 func seedCase(t *testing.T, pool *pgxpool.Pool) {
