@@ -30,7 +30,7 @@ func (s *Store) GuildSettings(ctx context.Context, guildID int64) (GuildSettings
 func (s *Store) SetModlogChannel(ctx context.Context, guildID, channelID int64) error {
 	ctx, cancel := Bounded(ctx)
 	defer cancel()
-	_, err := s.pool.Exec(ctx, `INSERT INTO "guildSettings" ("guildId", "modlogChannelId") VALUES ($1, nullif($2, 0))
+	_, err := s.pool.Exec(ctx, `INSERT INTO "guildSettings" ("guildId", "modlogChannelId") VALUES ($1, nullif($2::bigint, 0))
 		ON CONFLICT ("guildId") DO UPDATE SET "modlogChannelId" = excluded."modlogChannelId", "updatedAt" = now()`,
 		guildID, channelID)
 	return err
@@ -40,7 +40,7 @@ func (s *Store) SetModlogChannel(ctx context.Context, guildID, channelID int64) 
 func (s *Store) SetLogChannel(ctx context.Context, guildID, channelID int64) error {
 	ctx, cancel := Bounded(ctx)
 	defer cancel()
-	_, err := s.pool.Exec(ctx, `INSERT INTO "guildSettings" ("guildId", "logChannelId") VALUES ($1, nullif($2, 0))
+	_, err := s.pool.Exec(ctx, `INSERT INTO "guildSettings" ("guildId", "logChannelId") VALUES ($1, nullif($2::bigint, 0))
 		ON CONFLICT ("guildId") DO UPDATE SET "logChannelId" = excluded."logChannelId", "updatedAt" = now()`,
 		guildID, channelID)
 	return err
