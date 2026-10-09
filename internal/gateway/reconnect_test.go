@@ -5,19 +5,20 @@ import (
 	"testing"
 	"time"
 
+	"github.com/7kimchi/keroku/internal/gatewaytest"
 	"github.com/7kimchi/keroku/internal/safe"
 )
 
 func TestOpenSubsetOfShards(t *testing.T) {
-	f := newFakeGateway(t, 1)
+	f := gatewaytest.New(t, 1)
 	gw := New(Config{Token: "fake.test.token", ShardCount: 6, ShardIDs: []int{2, 5}, IdentifyWait: time.Millisecond,
-		HTTPClient: f.client()}, &recorder{}, safe.NewGuard(slog.New(slog.DiscardHandler), nil), slog.New(slog.DiscardHandler))
+		HTTPClient: f.Client()}, &recorder{}, safe.NewGuard(slog.New(slog.DiscardHandler), nil), slog.New(slog.DiscardHandler))
 	if err := gw.Open(t.Context()); err != nil {
 		t.Fatal(err)
 	}
 	defer gw.Close()
-	waitFor(t, "two identifies", func() bool { return len(f.identified()) == 2 })
-	for _, id := range f.identified() {
+	waitFor(t, "two identifies", func() bool { return len(f.Identified()) == 2 })
+	for _, id := range f.Identified() {
 		shard := id["shard"].([]any)
 		if n := shard[1].(float64); n != 6 {
 			t.Fatalf("shard count %v", n)
@@ -29,14 +30,14 @@ func TestOpenSubsetOfShards(t *testing.T) {
 }
 
 func TestReconnectAfterDrop(t *testing.T) {
-	f := newFakeGateway(t, 1)
-	gw := New(Config{Token: "fake.test.token", HTTPClient: f.client()}, &recorder{},
+	f := gatewaytest.New(t, 1)
+	gw := New(Config{Token: "fake.test.token", HTTPClient: f.Client()}, &recorder{},
 		safe.NewGuard(slog.New(slog.DiscardHandler), nil), slog.New(slog.DiscardHandler))
 	if err := gw.Open(t.Context()); err != nil {
 		t.Fatal(err)
 	}
 	defer gw.Close()
-	waitFor(t, "first identify", func() bool { return len(f.identified()) == 1 })
-	f.dropAll()
-	waitFor(t, "reconnect", func() bool { return len(f.identified()) >= 2 })
+	waitFor(t, "first identify", func() bool { return len(f.Identified()) == 1 })
+	f.DropAll()
+	waitFor(t, "reconnect", func() bool { return len(f.Identified()) >= 2 })
 }
