@@ -9,7 +9,6 @@ import (
 func TestDomainAccepts(t *testing.T) {
 	for in, want := range map[string]string{
 		"example.com":       "example.com",
-		" YouTube.COM ":     "youtube.com",
 		"a.b.c.d.e":         "a.b.c.d.e",
 		"xn--bcher-kva.de":  "xn--bcher-kva.de",
 		"my-site.co.uk":     "my-site.co.uk",
@@ -24,6 +23,12 @@ func TestDomainAccepts(t *testing.T) {
 		if err != nil || got != want {
 			t.Fatalf("%q: got %q %v", in, got, err)
 		}
+	}
+}
+
+func TestDomainTrimsAndLowercases(t *testing.T) {
+	if got, err := Domain("\tYouTube.COM\n"); err != nil || got != "youtube.com" {
+		t.Fatalf("got %q %v", got, err)
 	}
 }
 
