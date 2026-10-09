@@ -14,14 +14,14 @@ const (
 	BotMissingPermission
 )
 
-// Denial is a failed check. Message is safe to show to users.
-type Denial struct {
+// DenialError is a failed check. Message is safe to show to users.
+type DenialError struct {
 	Code       Code
 	Permission int64
 }
 
 // Message returns short user facing copy.
-func (d *Denial) Message() string {
+func (d *DenialError) Message() string {
 	switch d.Code {
 	case MissingPermission:
 		return "Missing permission: " + Name(d.Permission) + "."
@@ -42,4 +42,4 @@ func (d *Denial) Message() string {
 }
 
 // Error lets a denial travel as an error.
-func (d *Denial) Error() string { return d.Message() }
+func (d *DenialError) Error() string { return d.Message() }
