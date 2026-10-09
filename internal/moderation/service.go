@@ -8,6 +8,7 @@ import (
 
 	"github.com/7kimchi/keroku/internal/discord"
 	"github.com/7kimchi/keroku/internal/metrics"
+	"github.com/7kimchi/keroku/internal/safe"
 	"github.com/7kimchi/keroku/internal/store"
 )
 
@@ -23,6 +24,7 @@ type Service struct {
 	modlog  Modlog
 	metrics *metrics.Metrics
 	log     *slog.Logger
+	guard   *safe.Guard
 	botID   string
 	now     func() time.Time
 	window  time.Duration // double submit window
@@ -35,6 +37,7 @@ type Deps struct {
 	Modlog  Modlog
 	Metrics *metrics.Metrics
 	Log     *slog.Logger
+	Guard   *safe.Guard // nil gets one that logs to Log
 	BotID   string
 	Now     func() time.Time
 }
@@ -44,6 +47,9 @@ func New(d Deps) *Service {
 	if d.Now == nil {
 		d.Now = time.Now
 	}
-	return &Service{store: d.Store, client: d.Client, modlog: d.Modlog, metrics: d.Metrics, log: d.Log,
+	if d.Guard == nil {
+		d.Guard = safe.NewGuard(d.Log, nil)
+	}
+	return &Service{store: d.Store, client: d.Client, modlog: d.Modlog, metrics: d.Metrics, log: d.Log, guard: d.Guard,
 		botID: d.BotID, now: d.Now, window: duplicateWindow}
 }
