@@ -37,3 +37,5 @@ Prometheus metrics are served on `METRICS_ADDR`, `127.0.0.1:9100` by default, pa
 ## Backups
 
 All state lives in Postgres. Back it up with `pg_dump` or continuous archiving. Losing the database loses cases, settings and pending timers. Nothing else needs a backup.
+
+Keroku needs PostgreSQL 18 or newer and exits at startup on anything older. To move an older server, `pg_dump -Fc` the database with the 18 client, restore it into a new 18 cluster with `pg_restore`, then start the bot. Migrations run on startup.
