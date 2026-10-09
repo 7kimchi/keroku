@@ -1,6 +1,9 @@
 package discord
 
-import "strings"
+import (
+	"context"
+	"strings"
+)
 
 // Commands returns the registered command names.
 func (f *Fake) Commands() []string {
@@ -31,4 +34,21 @@ func (f *Fake) MessageCount(channelID string) int {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	return len(f.messages[channelID])
+}
+
+// SetIdentity sets what Identity returns.
+func (f *Fake) SetIdentity(appID, botUserID string) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.appID, f.botID = appID, botUserID
+}
+
+// Identity returns the configured application and bot ids.
+func (f *Fake) Identity(ctx context.Context) (string, string, error) {
+	if err := f.enter(ctx, "identity"); err != nil {
+		return "", "", err
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.appID, f.botID, nil
 }
