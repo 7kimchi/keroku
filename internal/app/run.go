@@ -30,7 +30,7 @@ func (a *App) Run(ctx context.Context) error {
 	if err == nil {
 		<-ctx.Done()
 	}
-	return errors.Join(err, a.shutdown(gw, stopBackground, &bg))
+	return errors.Join(err, a.shutdown(ctx, gw, stopBackground, &bg))
 }
 
 // start resolves the bot's identity, registers commands and opens the shards.
