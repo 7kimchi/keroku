@@ -38,6 +38,7 @@ type Case struct {
 	Duration       time.Duration // zero when the action is permanent
 	InteractionID  int64         // zero for automatic actions
 	IdempotencyKey string        // set for automatic actions
+	Details        Details
 	CreatedAt      time.Time
 }
 
@@ -51,4 +52,5 @@ type New struct {
 	Duration       time.Duration
 	InteractionID  int64
 	IdempotencyKey string
+	Details        Details
 }
