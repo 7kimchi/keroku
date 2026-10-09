@@ -45,6 +45,9 @@ func (s *Service) Execute(ctx context.Context, a Action) (Result, error) {
 			return err
 		}
 		res.Case = c
+		if a.FromTimer {
+			return nil
+		}
 		return s.timers(ctx, tx, a)
 	})
 	if err != nil {
