@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Starts a throwaway local Postgres for tests and prints its URL. Usage: testDb.sh start|stop
 set -euo pipefail
+export LC_ALL=C
 cd "$(dirname "$0")/.."
 dataDir="$PWD/.tmp/pgdata"
 port="${KEROKU_TEST_PG_PORT:-54329}"
