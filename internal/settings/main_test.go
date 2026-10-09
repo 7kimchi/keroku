@@ -33,7 +33,10 @@ func setup(t *testing.T) (ConfigCommand, *discord.Fake) {
 	_ = f.SetRoleOverwrite(t.Context(), "100000000000000012", gs, 0, perms.SendMessages, "")
 	st := store.New(dbtest.New(t))
 	cache, _ := store.NewSettingsCache(st, 100, time.Minute)
-	return ConfigCommand{Deps{Store: st, Settings: cache, Client: f, BotID: bs}}, f
+	am, _ := store.NewCached(st.Automod, 100, time.Minute)
+	rd, _ := store.NewCached(st.Raid, 100, time.Minute)
+	f.SetIdentity("1", bs)
+	return ConfigCommand{Deps{Store: st, Settings: cache, Automod: am, Raid: rd, Client: f, BotID: bs}}, f
 }
 
 var reqID = 1300000000000300000
@@ -63,3 +66,5 @@ func opt(name string, t discordgo.ApplicationCommandOptionType, v any) *discordg
 }
 
 const tChan, tInt, tStr = discordgo.ApplicationCommandOptionChannel, discordgo.ApplicationCommandOptionInteger, discordgo.ApplicationCommandOptionString
+
+const tBool = discordgo.ApplicationCommandOptionBoolean
