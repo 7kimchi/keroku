@@ -21,6 +21,7 @@ func (a *App) Run(ctx context.Context) error {
 		})
 	}
 	a.guard.Go(&bg, "housekeeping", func() { a.housekeeping(bgCtx) })
+	a.guard.Go(&bg, "sweeper", func() { a.sweeper.Run(bgCtx) })
 
 	gw := gateway.New(gateway.Config{
 		Token: a.cfg.Token.Reveal(), ShardCount: a.cfg.ShardCount, ShardIDs: a.cfg.ShardIDs,
