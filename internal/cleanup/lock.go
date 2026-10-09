@@ -51,6 +51,15 @@ func (s *Service) Lock(ctx context.Context, guildID, channelID int64, reason str
 // Unlock restores the lock permissions to what they were. It reports false if the channel
 // was not locked by Keroku. Other overwrite bits changed meanwhile are kept.
 func (s *Service) Unlock(ctx context.Context, guildID, channelID int64, reason string) (bool, error) {
+	return s.unlock(ctx, guildID, channelID, reason, true)
+}
+
+// UnlockFromTimer is Unlock for the sweeper, which already holds the timer row.
+func (s *Service) UnlockFromTimer(ctx context.Context, guildID, channelID int64, reason string) (bool, error) {
+	return s.unlock(ctx, guildID, channelID, reason, false)
+}
+
+func (s *Service) unlock(ctx context.Context, guildID, channelID int64, reason string, cancelTimer bool) (bool, error) {
 	gid, cid := validate.FormatSnowflake(guildID), validate.FormatSnowflake(channelID)
 	found := false
 	err := s.store.InTx(ctx, func(tx pgx.Tx) error {
@@ -59,8 +68,10 @@ func (s *Service) Unlock(ctx context.Context, guildID, channelID int64, reason s
 			return err
 		}
 		found = true
-		if _, err := store.CancelTimer(ctx, tx, guildID, store.TimerChannelUnlock, channelID); err != nil {
-			return err
+		if cancelTimer {
+			if _, err := store.CancelTimer(ctx, tx, guildID, store.TimerChannelUnlock, channelID); err != nil {
+				return err
+			}
 		}
 		ch, err := s.client.Channel(ctx, cid)
 		if err != nil {
