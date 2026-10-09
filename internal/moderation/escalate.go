@@ -33,6 +33,7 @@ func (s *Service) escalate(ctx context.Context, warn Action, w cases.Case) *Resu
 		Kind: cases.Kind(step.Action), GuildID: warn.GuildID, TargetID: warn.TargetID, ModeratorID: botID,
 		Reason:         "Reached " + strconv.Itoa(count) + " warnings.",
 		IdempotencyKey: "escalation:" + strconv.FormatInt(w.ID, 10), Automated: true,
+		Details: cases.Details{Source: cases.FromEscalation, WarnCase: w.Number},
 	}
 	if a.Kind == cases.Timeout || a.Kind == cases.Ban {
 		a.Duration = step.Duration
