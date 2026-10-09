@@ -44,6 +44,9 @@ func TestTempBanEnds(t *testing.T) {
 	if err != nil || c.Kind != cases.Unban || c.ModeratorID != bot || c.IdempotencyKey == "" {
 		t.Fatalf("unban case %+v %v", c, err)
 	}
+	if c.Details.Source != cases.FromTimer || c.Details.TimerID <= 0 {
+		t.Fatalf("details %+v", c.Details)
+	}
 	if once(t, e) {
 		t.Fatal("processed twice")
 	}
