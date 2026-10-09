@@ -33,3 +33,17 @@ func TestGuildSettings(t *testing.T) {
 		t.Fatal("negative channel accepted")
 	}
 }
+
+func TestGuildSettingsRealisticIDs(t *testing.T) {
+	s := store.New(dbtest.New(t))
+	const g, ch = int64(1300000000000000001), int64(1300000000000000002)
+	if err := s.SetModlogChannel(t.Context(), g, ch); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.SetLogChannel(t.Context(), g, ch+1); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := s.GuildSettings(t.Context(), g); got.ModlogChannelID != ch || got.LogChannelID != ch+1 {
+		t.Fatalf("got %+v", got)
+	}
+}
