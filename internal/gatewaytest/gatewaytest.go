@@ -55,9 +55,9 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 		_, _ = w.Write([]byte(`{"message":"401: Unauthorized","code":0}`))
 	case strings.HasSuffix(r.URL.Path, "/gateway/bot"):
-		fmt.Fprintf(w, `{"url":%q,"shards":%d,"session_start_limit":{"total":1000,"remaining":1000,"max_concurrency":16}}`, s.wsURL(), s.shards)
+		_, _ = fmt.Fprintf(w, `{"url":%q,"shards":%d,"session_start_limit":{"total":1000,"remaining":1000,"max_concurrency":16}}`, s.wsURL(), s.shards)
 	case strings.HasSuffix(r.URL.Path, "/gateway"):
-		fmt.Fprintf(w, `{"url":%q}`, s.wsURL())
+		_, _ = fmt.Fprintf(w, `{"url":%q}`, s.wsURL())
 	case strings.HasPrefix(r.URL.Path, "/ws"):
 		s.socket(w, r)
 	default:
