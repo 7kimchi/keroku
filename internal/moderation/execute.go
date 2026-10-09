@@ -2,12 +2,10 @@ package moderation
 
 import (
 	"context"
-	"errors"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/7kimchi/keroku/internal/cases"
-	"github.com/7kimchi/keroku/internal/commands"
 )
 
 // Execute runs one action. Everything that decides whether the action happens runs inside
@@ -79,22 +77,15 @@ func (s *Service) duplicate(ctx context.Context, tx pgx.Tx, a Action) (*Result, 
 	if a.Automated {
 		return nil, nil
 	}
-	c, ok, err := cases.Recent(ctx, tx, a.GuildID, a.TargetID, a.Kind, s.now().Add(-duplicateWindow))
+	// Warnings and notes from different moderators are separate records. Other actions
+	// change Discord state, so a second one from anyone within the window is a duplicate.
+	var by int64
+	if a.Kind == cases.Warn || a.Kind == cases.Note {
+		by = a.ModeratorID
+	}
+	c, ok, err := cases.Recent(ctx, tx, a.GuildID, a.TargetID, a.Kind, by, s.now().Add(-s.window))
 	if err != nil || ok {
 		return &Result{Duplicate: true, Case: c}, err
 	}
 	return nil, nil
-}
-
-// failure turns an error into what the moderator sees. If Discord already applied the
-// action but the case was not saved, the action is reverted when Discord allows it.
-func (s *Service) failure(ctx context.Context, a Action, applied bool, err error) error {
-	var userErr *commands.UserError
-	if errors.As(err, &userErr) {
-		return err
-	}
-	if !applied {
-		return discordFailure(a, err)
-	}
-	return s.compensate(ctx, a, err)
 }
