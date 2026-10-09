@@ -9,6 +9,9 @@ step() { echo "== $1"; }
 step "line count"
 scripts/checkLines.sh
 
+step "characters"
+scripts/checkChars.sh
+
 step "gofmt"
 unformatted=$(gofmt -l $(git ls-files --cached --others --exclude-standard '*.go'))
 if [ -n "$unformatted" ]; then
