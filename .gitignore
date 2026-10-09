@@ -1,0 +1,8 @@
+.remember/
+.env
+.env.*
+*.secret
+/keroku
+/bin/
+/.tmp/
+coverage.out
