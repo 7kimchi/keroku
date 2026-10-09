@@ -2,6 +2,7 @@ package discord
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"testing"
 	"time"
@@ -36,8 +37,9 @@ func TestRateLimitLongerThanDeadlineFailsFast(t *testing.T) {
 	if !Is(err, RateLimited) || time.Since(start) > time.Second || a.count() != 1 {
 		t.Fatalf("err %v after %v and %d hits", err, time.Since(start), a.count())
 	}
-	if e := err.(*Error); e.RetryAfter != 30*time.Second {
-		t.Fatalf("retry after %v", e.RetryAfter)
+	var e *Error
+	if !errors.As(err, &e) || e.RetryAfter != 30*time.Second {
+		t.Fatalf("retry after %v", err)
 	}
 }
 
