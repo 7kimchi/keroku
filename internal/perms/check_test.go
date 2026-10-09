@@ -2,7 +2,7 @@ package perms
 
 import "testing"
 
-func code(d *Denial) Code {
+func code(d *DenialError) Code {
 	if d == nil {
 		return 0
 	}
@@ -69,16 +69,16 @@ func TestCheckOrderAndCodes(t *testing.T) {
 
 func TestDenialMessages(t *testing.T) {
 	for c := MissingPermission; c <= BotMissingPermission; c++ {
-		d := &Denial{Code: c, Permission: BanMembers}
+		d := &DenialError{Code: c, Permission: BanMembers}
 		msg := d.Message()
 		if msg == "" || msg == "Not allowed." || d.Error() != msg {
 			t.Fatalf("code %d has no copy", c)
 		}
 	}
-	if (&Denial{Code: 99}).Message() != "Not allowed." {
+	if (&DenialError{Code: 99}).Message() != "Not allowed." {
 		t.Fatal("unknown code copy")
 	}
-	if got := (&Denial{Code: MissingPermission, Permission: BanMembers}).Message(); got != "Missing permission: Ban Members." {
+	if got := (&DenialError{Code: MissingPermission, Permission: BanMembers}).Message(); got != "Missing permission: Ban Members." {
 		t.Fatalf("got %q", got)
 	}
 }
