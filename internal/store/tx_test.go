@@ -6,8 +6,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/keroku/keroku/internal/dbtest"
-	"github.com/keroku/keroku/internal/store"
+	"github.com/7kimchi/keroku/internal/dbtest"
+	"github.com/7kimchi/keroku/internal/store"
 )
 
 func countCounters(t *testing.T, s *store.Store) int {
