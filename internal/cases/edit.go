@@ -29,7 +29,7 @@ func EditReason(ctx context.Context, tx pgx.Tx, guildID, number, editorID int64,
 		return Case{}, err
 	}
 	_, err = tx.Exec(ctx, `INSERT INTO "caseEdits" ("guildId", "caseId", "editorId", "oldReason", "newReason", "interactionId")
-		VALUES ($1, $2, $3, $4, $5, nullif($6, 0))`, guildID, c.ID, editorID, c.Reason, reason, interactionID)
+		VALUES ($1, $2, $3, $4, $5, nullif($6::bigint, 0))`, guildID, c.ID, editorID, c.Reason, reason, interactionID)
 	if store.IsUniqueViolation(err) {
 		return Case{}, ErrDuplicate
 	}
