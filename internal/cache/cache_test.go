@@ -55,7 +55,8 @@ func TestSetGet(t *testing.T) {
 }
 
 func TestZeroValueKeysAndUnicode(t *testing.T) {
-	c, _ := newTest(t, 10, time.Minute)
+	// Large enough that the two keys never compete for one slot.
+	c, _ := newTest(t, 1000, time.Minute)
 	c.Set("", 7)
 	c.Set("\U000000E9\U00004E16\U0001F600", 8)
 	if v, _ := c.Get(""); v != 7 {
