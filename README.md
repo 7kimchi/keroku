@@ -6,7 +6,7 @@ Keroku connects to Discord over the gateway and opens no public port. Command re
 
 ## Run
 
-Requirements: Go 1.27.2 or newer, PostgreSQL 14 or newer, a Discord application with a bot user.
+Requirements: Go 1.27.2 or newer, PostgreSQL 18 or newer (the bot refuses to start on older servers), a Discord application with a bot user.
 
 ```sh
 export DISCORD_TOKEN=...            # or DISCORD_TOKEN_FILE=/run/secrets/token
@@ -57,7 +57,7 @@ scripts/installTools.sh   # pinned linters
 scripts/check.sh          # every gate, including tests against a throwaway Postgres
 ```
 
-Tests need Postgres binaries on the path. `scripts/testDb.sh start` starts a local test server in `.tmp/`.
+Tests need PostgreSQL 18 binaries on the path. `scripts/testDb.sh start` starts a local test server in `.tmp/`.
 
 ## License
 
