@@ -13,8 +13,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/keroku/keroku/internal/store"
-	"github.com/keroku/keroku/migrations"
+	"github.com/7kimchi/keroku/internal/store"
+	"github.com/7kimchi/keroku/migrations"
 )
 
 // EnvURL names the variable holding an admin connection string for the test server.
