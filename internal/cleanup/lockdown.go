@@ -41,6 +41,15 @@ func (s *Service) Lockdown(ctx context.Context, guildID int64, reason string, un
 // EndLockdown gives @everyone back the lock permissions it had. It reports false if no
 // lockdown was active.
 func (s *Service) EndLockdown(ctx context.Context, guildID int64, reason string) (bool, error) {
+	return s.endLockdown(ctx, guildID, reason, true)
+}
+
+// EndLockdownFromTimer is EndLockdown for the sweeper, which already holds the timer row.
+func (s *Service) EndLockdownFromTimer(ctx context.Context, guildID int64, reason string) (bool, error) {
+	return s.endLockdown(ctx, guildID, reason, false)
+}
+
+func (s *Service) endLockdown(ctx context.Context, guildID int64, reason string, cancelTimer bool) (bool, error) {
 	gid := validate.FormatSnowflake(guildID)
 	found := false
 	err := s.store.InTx(ctx, func(tx pgx.Tx) error {
@@ -49,8 +58,10 @@ func (s *Service) EndLockdown(ctx context.Context, guildID int64, reason string)
 			return err
 		}
 		found = true
-		if _, err := store.CancelTimer(ctx, tx, guildID, store.TimerLockdownEnd, guildID); err != nil {
-			return err
+		if cancelTimer {
+			if _, err := store.CancelTimer(ctx, tx, guildID, store.TimerLockdownEnd, guildID); err != nil {
+				return err
+			}
 		}
 		everyone, err := s.everyone(ctx, gid)
 		if err != nil {
