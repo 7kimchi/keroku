@@ -22,7 +22,7 @@ Keroku assumes every interaction, gateway event and option value can be hostile:
 
 | Data | Where | Kept |
 | --- | --- | --- |
-| Cases: server id, case number, action, target id, moderator id, reason, duration, time | Postgres | Forever. Cases are never deleted. |
+| Cases: server id, case number, action, target id, moderator id, reason, duration, time, and a details object (what started the action, ban message deletion window, automod rule name, triggering warning case number, timer id) | Postgres | Forever. Cases are never deleted. Details are never edited. |
 | Reason edits: editor id, old and new reason, time | Postgres | Forever. |
 | Server settings: channel ids, escalation steps, automod and raid settings | Postgres | Until changed. |
 | Pending timers: unbans, timeout renewals, unlocks, lockdown ends | Postgres | 30 days after they finish. |
