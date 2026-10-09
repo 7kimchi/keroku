@@ -67,8 +67,10 @@ func TestFullLaneRefusesInsteadOfBlocking(t *testing.T) {
 	started := make(chan struct{})
 	p.Submit("k", func(context.Context) { close(started); <-release })
 	<-started
-	if !p.Submit("k", func(context.Context) {}) || !p.Submit("k", func(context.Context) {}) {
-		t.Fatal("queue slots refused")
+	for range 2 {
+		if !p.Submit("k", func(context.Context) {}) {
+			t.Fatal("queue slot refused")
+		}
 	}
 	start := time.Now()
 	if p.Submit("k", func(context.Context) {}) {
