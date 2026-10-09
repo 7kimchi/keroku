@@ -37,7 +37,7 @@ CREATE INDEX "caseEditsCaseIdx" ON "caseEdits" ("guildId", "caseId", "createdAt"
 -- Cases are append only. Only the reason may change, and only through caseEdits.
 CREATE FUNCTION "casesGuard"() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
+  IF TG_OP IN ('DELETE', 'TRUNCATE') THEN
     RAISE EXCEPTION 'cases are never deleted';
   END IF;
   IF (NEW."guildId", NEW."number", NEW."kind", NEW."targetId", NEW."moderatorId",
@@ -53,6 +53,9 @@ $$;
 
 CREATE TRIGGER "casesGuardTrigger" BEFORE UPDATE OR DELETE ON "cases"
   FOR EACH ROW EXECUTE FUNCTION "casesGuard"();
+
+CREATE TRIGGER "casesTruncateGuard" BEFORE TRUNCATE ON "cases"
+  FOR EACH STATEMENT EXECUTE FUNCTION "casesGuard"();
 
 CREATE TABLE "interactionClaims" (
   "interactionId" bigint PRIMARY KEY CHECK ("interactionId" > 0),
