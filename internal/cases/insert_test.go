@@ -81,3 +81,20 @@ func TestInteractionAndKeyAreUnique(t *testing.T) {
 		t.Fatalf("duplicate attempts left a gap: %d", c.Number)
 	}
 }
+
+// Real snowflakes do not fit in 32 bits. Every id column must take them.
+func TestRealisticSnowflakes(t *testing.T) {
+	pool := db(t)
+	const big = int64(1300000000000000001)
+	n := New{GuildID: big, Kind: Ban, TargetID: big + 1, ModeratorID: big + 2, InteractionID: big + 3, Duration: time.Hour}
+	c, err := insert(t, pool, n)
+	if err != nil || c.InteractionID != big+3 || c.GuildID != big {
+		t.Fatalf("got %+v %v", c, err)
+	}
+	if _, err := editOnce(t, pool, big, c.Number, "x", big+4); err != nil {
+		t.Fatal(err)
+	}
+	if ok, err := Claim(t.Context(), pool, big+5, big); !ok || err != nil {
+		t.Fatal(err)
+	}
+}
