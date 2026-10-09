@@ -40,7 +40,7 @@ func (s *Service) Execute(ctx context.Context, a Action) (Result, error) {
 		applied = true
 		c, err := cases.Insert(ctx, tx, cases.New{GuildID: a.GuildID, Kind: a.Kind, TargetID: a.TargetID,
 			ModeratorID: a.ModeratorID, Reason: a.Reason, Duration: a.Duration,
-			InteractionID: a.InteractionID, IdempotencyKey: a.IdempotencyKey})
+			InteractionID: a.InteractionID, IdempotencyKey: a.IdempotencyKey, Details: details(a)})
 		if err != nil {
 			return err
 		}
