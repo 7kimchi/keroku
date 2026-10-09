@@ -10,15 +10,15 @@ import (
 
 func TestTextCleans(t *testing.T) {
 	for in, want := range map[string]string{
-		"  spam  ":                   "spam",
-		"":                           "",
-		"line\nbreak\ttab":           "line break tab",
-		"a\x00b\x07c\x1bd\x7f":       "abcd",
-		"zero\U0000200Bwidth":            "zerowidth",
-		"bidi\U0000202Eesrever":          "bidiesrever",
-		"bom\U0000FEFF":                  "bom",
+		"  spam  ":                           "spam",
+		"":                                   "",
+		"line\nbreak\ttab":                   "line break tab",
+		"a\x00b\x07c\x1bd\x7f":               "abcd",
+		"zero\U0000200Bwidth":                "zerowidth",
+		"bidi\U0000202Eesrever":              "bidiesrever",
+		"bom\U0000FEFF":                      "bom",
 		"caf\U000000E9 \U00004E16\U0001F600": "caf\U000000E9 \U00004E16\U0001F600",
-		"@everyone":                  "@everyone",
+		"@everyone":                          "@everyone",
 	} {
 		got, err := Text(in, 100)
 		if err != nil || got != want {
