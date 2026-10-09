@@ -50,9 +50,12 @@ func TestDispatchErrorKinds(t *testing.T) {
 		}},
 		stub{"panics", func(context.Context, *Request) (*discordgo.MessageEmbed, error) { panic("nil map") }},
 		stub{"empty", func(context.Context, *Request) (*discordgo.MessageEmbed, error) { return nil, nil }},
+		stub{"partial", func(context.Context, *Request) (*discordgo.MessageEmbed, error) {
+			return nil, FailWith("Kick failed", "Member kicked. Case not saved.", errors.New("tx aborted"))
+		}},
 	)
 	ids := map[string]string{}
-	for _, n := range []string{"refuse", "broken", "panics", "empty"} {
+	for _, n := range []string{"refuse", "broken", "panics", "empty", "partial"} {
 		i := interaction(n)
 		ids[n] = i.ID
 		h.d.Interaction(i)
@@ -60,6 +63,9 @@ func TestDispatchErrorKinds(t *testing.T) {
 	h.drain()
 	if e := lastReply(t, h, ids["refuse"]); e.Title != "Ban failed" || e.Description != "Missing permission: Ban Members." {
 		t.Fatalf("refuse: %+v", e)
+	}
+	if e := lastReply(t, h, ids["partial"]); !strings.HasPrefix(e.Description, "Member kicked. Case not saved. Ref ") {
+		t.Fatalf("partial: %q", e.Description)
 	}
 	for _, n := range []string{"broken", "panics", "empty"} {
 		e := lastReply(t, h, ids[n])
