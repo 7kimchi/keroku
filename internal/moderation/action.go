@@ -18,6 +18,9 @@ const (
 	duplicateWindow  = 10 * time.Second
 )
 
+// NotBanned is the refusal detail for unbanning someone who is not banned.
+const NotBanned = "Not banned."
+
 // Action is one requested moderation action.
 type Action struct {
 	Kind          cases.Kind
@@ -31,6 +34,7 @@ type Action struct {
 	InteractionID  int64  // set for commands
 	IdempotencyKey string // set for automatic actions
 	Automated      bool
+	FromTimer      bool // run by the sweeper, which owns the timer row already
 
 	InvokerRoles []string
 	InvokerPerms int64
