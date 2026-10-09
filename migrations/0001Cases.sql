@@ -19,7 +19,7 @@ CREATE TABLE "cases" (
   UNIQUE ("guildId", "idempotencyKey")
 );
 
-CREATE INDEX "casesTargetIdx" ON "cases" ("guildId", "targetId", "createdAt" DESC);
+CREATE INDEX "casesTargetIdx" ON "cases" ("guildId", "targetId", "number" DESC);
 
 CREATE TABLE "caseEdits" (
   "id" bigserial PRIMARY KEY,
