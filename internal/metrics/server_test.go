@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/keroku/keroku/internal/safe"
+	"github.com/7kimchi/keroku/internal/safe"
 )
 
 func guard() *safe.Guard { return safe.NewGuard(slog.New(slog.DiscardHandler), nil) }
