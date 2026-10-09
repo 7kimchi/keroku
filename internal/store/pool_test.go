@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/keroku/keroku/internal/dbtest"
-	"github.com/keroku/keroku/internal/store"
+	"github.com/7kimchi/keroku/internal/dbtest"
+	"github.com/7kimchi/keroku/internal/store"
 )
 
 func TestOpenRejectsBadURL(t *testing.T) {
