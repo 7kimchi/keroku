@@ -34,7 +34,8 @@ type Action struct {
 	InteractionID  int64  // set for commands
 	IdempotencyKey string // set for automatic actions
 	Automated      bool
-	FromTimer      bool // run by the sweeper, which owns the timer row already
+	FromTimer      bool          // run by the sweeper, which owns the timer row already
+	Details        cases.Details // source and extras for the case; filled in for commands
 
 	InvokerRoles []string
 	InvokerPerms int64
