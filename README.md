@@ -16,6 +16,28 @@ go run ./cmd/keroku
 
 The schema is migrated on startup. Several instances can start at once: migrations take a Postgres advisory lock. Every setting is listed in [docs/config.md](docs/config.md). Deployment, sharding and metrics are in [docs/operations.md](docs/operations.md).
 
+## Commands
+
+[Moderation](docs/commands/moderation.md), [records](docs/commands/records.md), [cleanup](docs/commands/cleanup.md) and [settings](docs/commands/settings.md).
+
+## Discord permissions
+
+Invite Keroku with exactly these permissions and place its role above every role it should be able to moderate.
+
+| Permission | Used by |
+| --- | --- |
+| View Channels | Reading channels it posts to or cleans up. |
+| Send Messages | Modlog and log posts. |
+| Embed Links | Every post is an embed. |
+| Read Message History | `/purge`. |
+| Manage Messages | `/purge`, automod deletions. |
+| Manage Channels | `/slowmode`. |
+| Manage Roles | `/lock`, `/unlock`, `/lockdown`. |
+| Kick Members | `/kick`, escalation, raid protection. |
+| Ban Members | `/ban`, `/unban`, escalation, raid protection. |
+| Timeout Members | `/timeout`, `/untimeout`, escalation, automod. |
+| Manage Server | Discord AutoMod rules for mention spam and invites. |
+
 ## Gateway intents
 
 Enable these in the Discord developer portal. Keroku requests nothing else.
