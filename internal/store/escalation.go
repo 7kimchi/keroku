@@ -50,7 +50,7 @@ func (s *Store) SetEscalationStep(ctx context.Context, guildID int64, st Escalat
 	ctx, cancel := Bounded(ctx)
 	defer cancel()
 	return pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
-		if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended('escalation:' || $1::text, 0))`, guildID); err != nil {
+		if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended('escalation:' || $1::bigint::text, 0))`, guildID); err != nil {
 			return err
 		}
 		var others int
