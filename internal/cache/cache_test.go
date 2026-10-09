@@ -57,11 +57,11 @@ func TestSetGet(t *testing.T) {
 func TestZeroValueKeysAndUnicode(t *testing.T) {
 	c, _ := newTest(t, 10, time.Minute)
 	c.Set("", 7)
-	c.Set("é世\U0001F600", 8)
+	c.Set("\U000000E9\U00004E16\U0001F600", 8)
 	if v, _ := c.Get(""); v != 7 {
 		t.Fatalf("empty key got %d", v)
 	}
-	if v, _ := c.Get("é世\U0001F600"); v != 8 {
+	if v, _ := c.Get("\U000000E9\U00004E16\U0001F600"); v != 8 {
 		t.Fatalf("unicode key got %d", v)
 	}
 }
