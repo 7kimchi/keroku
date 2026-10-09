@@ -17,7 +17,7 @@ func (a *App) shutdown(parent context.Context, gw *gateway.Gateway, stopBackgrou
 	defer cancel()
 	gw.Close()
 	// Ack jobs feed the lanes, so the ack pool drains first.
-	err := errors.Join(a.ack.Close(ctx), a.lanes.Close(ctx))
+	err := errors.Join(a.ack.Close(ctx), a.lanes.Close(ctx), a.modlog.Close(ctx))
 	stopBackground()
 	bg.Wait()
 	a.store.Close()
@@ -37,6 +37,8 @@ func (a *App) housekeeping(ctx context.Context) {
 			a.userLimit.Sweep(2000)
 			a.guildLimit.Sweep(2000)
 			a.seen.Sweep(2000)
+			a.settings.Sweep()
+			a.metrics.QueueDepth.WithLabelValues("modlog").Set(float64(a.modlog.Depth()))
 			a.metrics.QueueDepth.WithLabelValues("ack").Set(float64(a.ack.Depth()))
 			a.metrics.QueueDepth.WithLabelValues("lanes").Set(float64(a.lanes.Depth()))
 		}
