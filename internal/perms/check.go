@@ -23,30 +23,30 @@ type Request struct {
 }
 
 // Check runs the checks in a fixed order and returns the first failure, or nil.
-func Check(r Request) *Denial {
+func Check(r Request) *DenialError {
 	if !r.Automated && !Has(r.InvokerPerms, r.Need) {
-		return &Denial{Code: MissingPermission, Permission: r.Need}
+		return &DenialError{Code: MissingPermission, Permission: r.Need}
 	}
 	switch {
 	case r.TargetID == r.Guild.OwnerID:
-		return &Denial{Code: TargetOwner}
+		return &DenialError{Code: TargetOwner}
 	case !r.Automated && r.TargetID == r.InvokerID:
-		return &Denial{Code: TargetSelf}
+		return &DenialError{Code: TargetSelf}
 	case r.TargetID == r.BotID:
-		return &Denial{Code: TargetBot}
+		return &DenialError{Code: TargetBot}
 	}
 	if r.TargetMember {
 		target := TopPosition(r.Guild, r.TargetRoles)
 		invokerIsOwner := r.InvokerID == r.Guild.OwnerID
 		if !r.Automated && !invokerIsOwner && TopPosition(r.Guild, r.InvokerRoles) <= target {
-			return &Denial{Code: InvokerTooLow}
+			return &DenialError{Code: InvokerTooLow}
 		}
 		if TopPosition(r.Guild, r.BotRoles) <= target {
-			return &Denial{Code: BotTooLow}
+			return &DenialError{Code: BotTooLow}
 		}
 	}
 	if !Has(r.BotPerms, r.Need) {
-		return &Denial{Code: BotMissingPermission, Permission: r.Need}
+		return &DenialError{Code: BotMissingPermission, Permission: r.Need}
 	}
 	return nil
 }
