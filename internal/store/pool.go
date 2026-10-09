@@ -41,5 +41,9 @@ func Open(ctx context.Context, url string, maxConns int) (*pgxpool.Pool, error) 
 		pool.Close()
 		return nil, fmt.Errorf("store: ping: %w", err)
 	}
+	if err := checkServer(pingCtx, pool); err != nil {
+		pool.Close()
+		return nil, err
+	}
 	return pool, nil
 }
