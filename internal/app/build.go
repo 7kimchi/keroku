@@ -13,6 +13,8 @@ import (
 	"github.com/7kimchi/keroku/internal/records"
 	"github.com/7kimchi/keroku/internal/settings"
 	"github.com/7kimchi/keroku/internal/store"
+	"github.com/7kimchi/keroku/internal/sweeper"
+	"github.com/7kimchi/keroku/internal/validate"
 	"github.com/7kimchi/keroku/internal/workers"
 )
 
@@ -68,6 +70,9 @@ func (a *App) commandList() []commands.Command {
 		Metrics: a.metrics, Log: a.log, BotID: a.botID})
 	rec := records.Deps{Store: a.store, Modlog: a.modlog, BotID: a.botID}
 	clean := cleanup.New(a.store, a.client, a.modlog, nil)
+	botID, _ := validate.Snowflake(a.botID)
+	a.sweeper = sweeper.New(sweeper.Deps{Store: a.store, Client: a.client, Moderation: mod, Cleanup: clean,
+		Modlog: a.modlog, Metrics: a.metrics, Log: a.log, BotID: botID})
 	cfg := settings.Deps{Store: a.store, Settings: a.settings, Client: a.client, BotID: a.botID}
 	return []commands.Command{
 		moderation.BanCommand{S: mod}, moderation.UnbanCommand{S: mod}, moderation.KickCommand{S: mod},
