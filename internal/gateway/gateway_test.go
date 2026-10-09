@@ -8,6 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
+	"github.com/7kimchi/keroku/internal/gatewaytest"
 	"github.com/7kimchi/keroku/internal/safe"
 )
 
@@ -55,19 +56,19 @@ func TestOpenDeliversEventsAndSurvivesPanics(t *testing.T) {
 		`"t":"INTERACTION_CREATE","d":{"id":"good","type":2,"data":{"name":"x"}}`,
 		`"t":"MESSAGE_CREATE","d":{"id":"m","channel_id":"c","content":"hi","author":{"id":"u"}}`,
 	}
-	f := newFakeGateway(t, 3, events...)
+	f := gatewaytest.New(t, 3, events...)
 	rec := &recorder{panicOn: "bad"}
 	var panics int
 	var mu sync.Mutex
 	g := safe.NewGuard(slog.New(slog.DiscardHandler), func(string) { mu.Lock(); panics++; mu.Unlock() })
-	gw := New(Config{Token: "fake.test.token", IdentifyWait: 10 * time.Millisecond, HTTPClient: f.client()}, rec, g, slog.New(slog.DiscardHandler))
+	gw := New(Config{Token: "fake.test.token", IdentifyWait: 10 * time.Millisecond, HTTPClient: f.Client()}, rec, g, slog.New(slog.DiscardHandler))
 	if err := gw.Open(t.Context()); err != nil {
 		t.Fatal(err)
 	}
 	defer gw.Close()
-	waitFor(t, "identify of 3 shards", func() bool { return len(f.identified()) == 3 })
+	waitFor(t, "identify of 3 shards", func() bool { return len(f.Identified()) == 3 })
 	waitFor(t, "good interaction on every shard", func() bool { return len(rec.seen()) == 3 })
-	for _, id := range f.identified() {
+	for _, id := range f.Identified() {
 		if id["token"] != "Bot fake.test.token" || int64(id["intents"].(float64)) != int64(Intents(false)) {
 			t.Fatalf("identify %v", id)
 		}
