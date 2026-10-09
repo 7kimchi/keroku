@@ -10,9 +10,10 @@ import (
 )
 
 // shutdown stops intake first, then drains queued work, then background jobs, then the pool.
-func (a *App) shutdown(gw *gateway.Gateway, stopBackground context.CancelFunc, bg *sync.WaitGroup) error {
+func (a *App) shutdown(parent context.Context, gw *gateway.Gateway, stopBackground context.CancelFunc, bg *sync.WaitGroup) error {
 	a.log.Info("shutting down", "timeout", a.cfg.ShutdownTimeout.String())
-	ctx, cancel := context.WithTimeout(context.Background(), a.cfg.ShutdownTimeout)
+	// parent is already cancelled when shutdown starts, so only its values are kept.
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(parent), a.cfg.ShutdownTimeout)
 	defer cancel()
 	gw.Close()
 	// Ack jobs feed the lanes, so the ack pool drains first.
