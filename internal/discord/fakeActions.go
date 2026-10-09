@@ -24,7 +24,10 @@ func (f *Fake) Timeout(ctx context.Context, guildID, userID string, until *time.
 	if err := f.enter(ctx, "timeout"); err != nil {
 		return err
 	}
-	if until != nil && time.Until(*until) > 28*24*time.Hour+time.Minute {
+	f.mu.Lock()
+	now := f.now()
+	f.mu.Unlock()
+	if until != nil && until.Sub(now) > 28*24*time.Hour+time.Minute {
 		return &Error{Op: "timeout", Kind: BadRequest, Status: 400}
 	}
 	f.mu.Lock()
