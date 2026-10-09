@@ -85,3 +85,14 @@ func TestFakeDelayHonorsContext(t *testing.T) {
 		t.Fatalf("got %v after %v", err, time.Since(start))
 	}
 }
+
+func TestFakeOnCall(t *testing.T) {
+	f := seeded()
+	n := 0
+	f.OnCall("kick", func() { n++ })
+	_ = f.Kick(t.Context(), "g", "u", "")
+	_ = f.Kick(t.Context(), "g", "u", "")
+	if n != 2 {
+		t.Fatalf("hook ran %d times", n)
+	}
+}
