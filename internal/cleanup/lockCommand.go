@@ -28,6 +28,9 @@ func (c LockCommand) Handle(ctx context.Context, r *commands.Request) (*discordg
 	if err != nil {
 		return nil, err
 	}
+	if err := c.S.checkChannel(ctx, r, channel, "Lock failed", perms.ManageChannels); err != nil {
+		return nil, err
+	}
 	d, _, err := r.Duration("duration", time.Minute, MaxLockFor)
 	if err != nil {
 		return nil, err
