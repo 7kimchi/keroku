@@ -29,7 +29,7 @@ func TestBanFlow(t *testing.T) {
 		t.Fatal("dm or modlog missing")
 	}
 	end, ok, _ := store.PendingTimer(t.Context(), e.store.Pool(), guild, store.TimerUnban, user)
-	if !ok || end.Sub(time.Now()) < 47*time.Hour {
+	if !ok || time.Until(end) < 47*time.Hour {
 		t.Fatalf("unban timer %v %v", end, ok)
 	}
 	perm := act(cases.Ban)
@@ -46,7 +46,7 @@ func TestEveryKindApplies(t *testing.T) {
 	to := act(cases.Timeout)
 	to.Duration = 2 * time.Hour
 	mustRun(t, e, to)
-	if until := e.fake.TimeoutUntil(gs, us); until == nil || until.Sub(time.Now()) < 119*time.Minute {
+	if until := e.fake.TimeoutUntil(gs, us); until == nil || time.Until(*until) < 119*time.Minute {
 		t.Fatalf("timeout until %v", until)
 	}
 	mustRun(t, e, act(cases.Untimeout))
@@ -73,11 +73,11 @@ func TestLongTimeoutIsCappedAndRenewed(t *testing.T) {
 	a.Duration = 60 * 24 * time.Hour
 	r := mustRun(t, e, a)
 	until := e.fake.TimeoutUntil(gs, us)
-	if until == nil || until.Sub(time.Now()) > DiscordTimeout || r.Case.Duration != a.Duration {
+	if until == nil || time.Until(*until) > DiscordTimeout || r.Case.Duration != a.Duration {
 		t.Fatalf("until %v case %v", until, r.Case.Duration)
 	}
 	end, ok, _ := store.PendingTimer(t.Context(), e.store.Pool(), guild, store.TimerTimeoutRenew, user)
-	if !ok || end.Sub(time.Now()) < 59*24*time.Hour {
+	if !ok || time.Until(end) < 59*24*time.Hour {
 		t.Fatalf("renew timer %v %v", end, ok)
 	}
 	mustRun(t, e, act(cases.Untimeout))
