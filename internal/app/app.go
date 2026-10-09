@@ -18,6 +18,7 @@ import (
 	"github.com/7kimchi/keroku/internal/ratelimit"
 	"github.com/7kimchi/keroku/internal/safe"
 	"github.com/7kimchi/keroku/internal/store"
+	"github.com/7kimchi/keroku/internal/sweeper"
 	"github.com/7kimchi/keroku/internal/workers"
 	"github.com/7kimchi/keroku/migrations"
 )
@@ -39,6 +40,7 @@ type App struct {
 	router      *router
 	settings    *store.SettingsCache
 	modlog      *modlog.Poster
+	sweeper     *sweeper.Sweeper
 	appID       string
 	botID       string
 	gatewayHTTP *http.Client // tests point the gateway at a fake
