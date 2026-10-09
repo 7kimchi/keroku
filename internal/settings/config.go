@@ -3,6 +3,7 @@ package settings
 
 import (
 	"context"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 
@@ -16,6 +17,8 @@ import (
 type Deps struct {
 	Store    *store.Store
 	Settings *store.SettingsCache
+	Automod  *store.Cached[store.AutomodSettings]
+	Raid     *store.Cached[store.RaidSettings]
 	Client   discord.Client
 	BotID    string
 }
@@ -32,6 +35,8 @@ func (ConfigCommand) Definition() *discordgo.ApplicationCommand {
 			sub("modlog", "Set the channel for case posts. Leave empty to turn them off", channelOption()),
 			sub("logs", "Set the channel for message and member logs. Leave empty to turn them off", channelOption()),
 			escalationGroup(),
+			automodGroup(),
+			raidGroup(),
 		}}
 }
 
@@ -48,6 +53,11 @@ func (c ConfigCommand) Handle(ctx context.Context, r *commands.Request) (*discor
 		return c.escalationAdd(ctx, r)
 	case "escalation remove":
 		return c.escalationRemove(ctx, r)
+	case "raid set":
+		return c.raid(ctx, r)
+	}
+	if strings.HasPrefix(r.Sub, "automod ") {
+		return c.automod(ctx, r)
 	}
 	return nil, commands.Fail("Config failed", "Unknown subcommand.")
 }
