@@ -33,7 +33,11 @@ func (f *Fake) enter(ctx context.Context, op string) error {
 			err, f.failures[key] = q[0], q[1:]
 		}
 	}
+	hook := f.hooks[op]
 	f.mu.Unlock()
+	if hook != nil {
+		hook()
+	}
 	if d > 0 {
 		t := time.NewTimer(d)
 		defer t.Stop()
@@ -51,4 +55,11 @@ func (f *Fake) enter(ctx context.Context, op string) error {
 
 func notFound(op string, code int) *Error {
 	return &Error{Op: op, Kind: NotFound, Status: 404, Code: code}
+}
+
+// OnCall runs fn at the start of every call to op, before any delay or failure.
+func (f *Fake) OnCall(op string, fn func()) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.hooks[op] = fn
 }
