@@ -62,7 +62,10 @@ func (a *App) build(ctx context.Context) error {
 		Metrics: a.metrics, Log: a.log, Guard: a.guard, HandlerTimeout: 60 * time.Second,
 	})
 	a.router = &router{interactions: d,
-		messages: []func(*discordgo.Message){a.automod.Message},
-		joins:    []func(*discordgo.GuildMemberAdd){a.raid.MemberAdd}}
+		messages: []func(*discordgo.Message){a.automod.Message, a.eventlog.MessageCreate},
+		updates:  []func(*discordgo.MessageUpdate){a.eventlog.MessageUpdate},
+		deletes:  []func(*discordgo.MessageDelete){a.eventlog.MessageDelete},
+		joins:    []func(*discordgo.GuildMemberAdd){a.raid.MemberAdd, a.eventlog.MemberAdd},
+		leaves:   []func(*discordgo.GuildMemberRemove){a.eventlog.MemberRemove}}
 	return nil
 }
