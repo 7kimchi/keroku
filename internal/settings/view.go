@@ -29,10 +29,20 @@ func (c ConfigCommand) view(ctx context.Context, r *commands.Request) (*discordg
 	if esc == "" {
 		esc = "Off"
 	}
+	am, err := c.D.Store.Automod(ctx, gid)
+	if err != nil {
+		return nil, err
+	}
+	rd, err := c.D.Store.Raid(ctx, gid)
+	if err != nil {
+		return nil, err
+	}
 	return embeds.New("Settings").
 		Field("Modlog channel", channelText(g.ModlogChannelID), true).
 		Field("Log channel", channelText(g.LogChannelID), true).
-		Field("Warn escalation", esc, false).Build(), nil
+		Field("Warn escalation", esc, false).
+		Field("Automod", automodSummary(am), false).
+		Field("Raid protection", raidSummary(rd), false).Build(), nil
 }
 
 func channelText(id int64) string {
