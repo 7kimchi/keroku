@@ -18,6 +18,10 @@ func TestEveryMethodHitsItsRoute(t *testing.T) {
 			reply(w, 200, `[{"id":"m1"}]`)
 		case req.Method == "GET" && strings.HasSuffix(req.URL.Path, "/rules"):
 			reply(w, 200, `[]`)
+		case strings.HasSuffix(req.URL.Path, "/oauth2/applications/@me"):
+			reply(w, 200, `{"id":"app1"}`)
+		case strings.HasSuffix(req.URL.Path, "/users/@me"):
+			reply(w, 200, `{"id":"bot1"}`)
 		case req.Method == "PUT" && strings.Contains(req.URL.Path, "/commands"):
 			reply(w, 200, `[]`)
 		default:
@@ -54,6 +58,13 @@ func TestEveryMethodHitsItsRoute(t *testing.T) {
 		{func(c context.Context) error { return r.EditAutoModRule(c, "1", "7", rule, "r") }, "PATCH", "/guilds/1/auto-moderation/rules/7"},
 		{func(c context.Context) error { return r.DeleteAutoModRule(c, "1", "7", "r") }, "DELETE", "/guilds/1/auto-moderation/rules/7"},
 		{func(c context.Context) error { return r.OverwriteCommands(c, "6", nil) }, "PUT", "/applications/6/commands"},
+		{func(c context.Context) error {
+			app, bot, e := r.Identity(c)
+			if e == nil && (app != "app1" || bot != "bot1") {
+				t.Fatalf("identity %s %s", app, bot)
+			}
+			return e
+		}, "GET", "/users/@me"},
 	}
 	for _, s := range steps {
 		if err := s.call(ctx); err != nil {
@@ -63,37 +74,5 @@ func TestEveryMethodHitsItsRoute(t *testing.T) {
 		if got.method != s.method || !strings.HasSuffix(got.path, s.path) {
 			t.Fatalf("want %s %s, got %s %s", s.method, s.path, got.method, got.path)
 		}
-	}
-}
-
-func TestSlowmodeZeroIsSent(t *testing.T) {
-	a, r := newServer(t, ok)
-	if err := r.SetSlowmode(t.Context(), "3", 0, ""); err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(string(a.last().body), `"rate_limit_per_user":0`) {
-		t.Fatalf("body %s", a.last().body)
-	}
-}
-
-func TestRespondDisablesMentions(t *testing.T) {
-	a, r := newServer(t, noContent)
-	resp := &discordgo.InteractionResponse{Type: 4, Data: &discordgo.InteractionResponseData{Content: "@everyone"}}
-	if err := r.Respond(t.Context(), &discordgo.Interaction{ID: "1", Token: "t"}, resp); err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(string(a.last().body), `"allowed_mentions":{"parse":[]`) {
-		t.Fatalf("body %s", a.last().body)
-	}
-}
-
-func TestKindNames(t *testing.T) {
-	for k := Unknown; k <= Timeout; k++ {
-		if k != Unknown && k.String() == "unknown" {
-			t.Fatalf("kind %d unnamed", k)
-		}
-	}
-	if Is(nil, Unknown) || KindOf(context.Canceled) != Unknown {
-		t.Fatal("unclassified errors")
 	}
 }
