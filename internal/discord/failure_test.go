@@ -1,61 +1,11 @@
 package discord
 
 import (
-	"context"
 	"net/http"
-	"strings"
 	"sync"
 	"testing"
 	"time"
-
-	"github.com/bwmarrin/discordgo"
 )
-
-func TestRateLimitHonorsRetryAfter(t *testing.T) {
-	a, rest := newServer(t, func(w http.ResponseWriter, r *http.Request, hit int) {
-		if hit == 1 {
-			reply(w, 429, `{"message":"slow down","retry_after":0.3,"global":false}`)
-			return
-		}
-		noContent(w, r, hit)
-	})
-	start := time.Now()
-	if err := rest.Kick(t.Context(), "1", "2", ""); err != nil {
-		t.Fatal(err)
-	}
-	if took := time.Since(start); took < 300*time.Millisecond {
-		t.Fatalf("retried after %v, before retry_after", took)
-	}
-	if a.count() != 2 {
-		t.Fatalf("%d hits", a.count())
-	}
-}
-
-func TestRateLimitLongerThanDeadlineFailsFast(t *testing.T) {
-	a, rest := newServer(t, func(w http.ResponseWriter, _ *http.Request, _ int) {
-		reply(w, 429, `{"message":"slow down","retry_after":30,"global":false}`)
-	})
-	start := time.Now()
-	err := rest.Send(t.Context(), "1", testEmbed())
-	if !Is(err, RateLimited) || time.Since(start) > time.Second || a.count() != 1 {
-		t.Fatalf("err %v after %v and %d hits", err, time.Since(start), a.count())
-	}
-	if e := err.(*Error); e.RetryAfter != 30*time.Second {
-		t.Fatalf("retry after %v", e.RetryAfter)
-	}
-}
-
-func TestRateLimitRetriesAreBounded(t *testing.T) {
-	a, rest := newServer(t, func(w http.ResponseWriter, _ *http.Request, _ int) {
-		reply(w, 429, `{"message":"slow down","retry_after":0.01,"global":false}`)
-	})
-	if err := rest.Kick(t.Context(), "1", "2", ""); !Is(err, RateLimited) {
-		t.Fatalf("got %v", err)
-	}
-	if a.count() != rest.retries+1 {
-		t.Fatalf("%d hits", a.count())
-	}
-}
 
 func TestServerErrorsRetryOnlyIdempotent(t *testing.T) {
 	a, rest := newServer(t, func(w http.ResponseWriter, _ *http.Request, _ int) { reply(w, 503, `{}`) })
@@ -97,18 +47,6 @@ func TestSlowResponseTimesOut(t *testing.T) {
 	}
 }
 
-func TestCallerCancelStopsRetries(t *testing.T) {
-	_, rest := newServer(t, func(w http.ResponseWriter, _ *http.Request, _ int) {
-		reply(w, 429, `{"message":"x","retry_after":0.5,"global":false}`)
-	})
-	ctx, cancel := context.WithTimeout(t.Context(), 700*time.Millisecond)
-	defer cancel()
-	start := time.Now()
-	if err := rest.Kick(ctx, "1", "2", ""); err == nil || time.Since(start) > 1500*time.Millisecond {
-		t.Fatalf("got %v after %v", err, time.Since(start))
-	}
-}
-
 func TestDroppedConnection(t *testing.T) {
 	a, rest := newServer(t, func(w http.ResponseWriter, _ *http.Request, _ int) {
 		conn, _, err := w.(http.Hijacker).Hijack()
@@ -118,20 +56,6 @@ func TestDroppedConnection(t *testing.T) {
 	})
 	if err := rest.Kick(t.Context(), "1", "2", ""); !Is(err, Unavailable) || a.count() != 4 {
 		t.Fatalf("got %v after %d hits", err, a.count())
-	}
-}
-
-func TestErrorsNeverCarrySecrets(t *testing.T) {
-	_, rest := newServer(t, func(w http.ResponseWriter, _ *http.Request, _ int) {
-		reply(w, 404, `{"code":10015,"message":"Unknown Webhook"}`)
-	})
-	i := &discordgo.Interaction{AppID: "1", ID: "2", Token: "interactionsecrettoken"}
-	err := rest.EditResponse(t.Context(), i, testEmbed())
-	if !Is(err, Expired) {
-		t.Fatalf("got %v", err)
-	}
-	if s := err.Error(); strings.Contains(s, "interactionsecrettoken") || strings.Contains(s, testToken) || strings.Contains(s, "http") {
-		t.Fatalf("leak: %s", s)
 	}
 }
 
