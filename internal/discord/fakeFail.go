@@ -63,3 +63,10 @@ func (f *Fake) OnCall(op string, fn func()) {
 	defer f.mu.Unlock()
 	f.hooks[op] = fn
 }
+
+// SetNow replaces the clock the fake uses for Discord's time limits.
+func (f *Fake) SetNow(now func() time.Time) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.now = now
+}
