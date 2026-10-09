@@ -44,6 +44,9 @@ func (c SlowmodeCommand) Handle(ctx context.Context, r *commands.Request) (*disc
 	if err != nil {
 		return nil, err
 	}
+	if err := c.S.checkChannel(ctx, r, channel, "Slowmode failed", perms.ManageChannels); err != nil {
+		return nil, err
+	}
 	why, err := reason(r)
 	if err != nil {
 		return nil, err
