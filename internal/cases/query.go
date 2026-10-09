@@ -32,6 +32,13 @@ func History(ctx context.Context, q store.Querier, guildID, targetID int64, limi
 	return scanAll(rows)
 }
 
+// Count counts a target's cases in a guild.
+func Count(ctx context.Context, q store.Querier, guildID, targetID int64) (int, error) {
+	var n int
+	err := q.QueryRow(ctx, `SELECT count(*) FROM "cases" WHERE "guildId" = $1 AND "targetId" = $2`, guildID, targetID).Scan(&n)
+	return n, err
+}
+
 // CountByKind counts a target's cases of one kind in a guild.
 func CountByKind(ctx context.Context, q store.Querier, guildID, targetID int64, kind Kind) (int, error) {
 	var n int
