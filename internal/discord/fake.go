@@ -27,6 +27,8 @@ type Fake struct {
 	failures  map[string][]error
 	delay     map[string]time.Duration
 	nextID    int
+	appID     string
+	botID     string
 }
 
 // Sent records one embed the bot delivered. To is a channel, user or interaction id.
