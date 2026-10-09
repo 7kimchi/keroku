@@ -22,6 +22,8 @@ func validateAction(a Action) error {
 		return errBadAction
 	case a.DeleteSeconds < 0 || a.DeleteSeconds > MaxDeleteSeconds || (a.DeleteSeconds > 0 && a.Kind != cases.Ban):
 		return errBadAction
+	case !a.Details.Valid():
+		return errBadAction
 	}
 	switch a.Kind {
 	case cases.Ban:
