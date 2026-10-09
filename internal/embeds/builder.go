@@ -1,6 +1,7 @@
 package embeds
 
 import (
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -25,15 +26,15 @@ func (b *Builder) Description(s string) *Builder {
 	return b
 }
 
-// Field appends a field. Empty values show as "None". Fields past 25 are dropped.
+// Field appends a field. Blank values, which Discord rejects, show as "None". Max 25 fields.
 func (b *Builder) Field(name, value string, inline bool) *Builder {
 	if len(b.e.Fields) >= MaxFields {
 		return b
 	}
-	if name == "" {
+	if strings.TrimSpace(name) == "" {
 		name = "-"
 	}
-	if value == "" {
+	if strings.TrimSpace(value) == "" {
 		value = "None"
 	}
 	b.e.Fields = append(b.e.Fields, &discordgo.MessageEmbedField{Name: name, Value: value, Inline: inline})
