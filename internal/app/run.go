@@ -35,10 +35,6 @@ func (a *App) Run(ctx context.Context) error {
 
 // start resolves the bot's identity, registers commands and opens the shards.
 func (a *App) start(ctx context.Context, gw *gateway.Gateway) error {
-	var err error
-	if a.appID, a.botID, err = a.client.Identity(ctx); err != nil {
-		return err
-	}
 	// Only the instance running shard 0 registers, so a fleet does not race on it.
 	if a.cfg.ShardIDs == nil || slices.Contains(a.cfg.ShardIDs, 0) {
 		if err := a.client.OverwriteCommands(ctx, a.appID, a.registry.Definitions()); err != nil {
