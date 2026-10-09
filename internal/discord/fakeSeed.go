@@ -80,3 +80,14 @@ func (f *Fake) ExpireInteraction(id string) {
 	defer f.mu.Unlock()
 	f.expired[id] = true
 }
+
+// Pin marks a stored message as pinned.
+func (f *Fake) Pin(channelID, messageID string) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	for _, m := range f.messages[channelID] {
+		if m.ID == messageID {
+			m.Pinned = true
+		}
+	}
+}
