@@ -1,21 +1,57 @@
-MIT License
+Keroku Source Available License 1.0
 
-Copyright (c) 2026 Kimchi
+Copyright (c) 2026 Kimchi. All rights reserved, except as granted below.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+"Software" means the source code, binaries, documentation and other files in
+this repository. "You" means the person or entity using the Software.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Permitted use
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+You may:
+
+a. Read and study the Software.
+b. Build and run the Software, modified or not, to moderate Discord servers
+   that you own or administer.
+c. Modify the Software for the use in (b).
+d. Submit changes back to this repository as contributions.
+
+2. Restrictions
+
+You may not:
+
+a. Distribute, publish, sublicense or share the Software or any modified
+   version, in source or binary form, except as a contribution under 1(d).
+b. Sell the Software, or charge for access to it or to any service built on it.
+c. Run the Software as a hosted service for servers you do not own or
+   administer, whether paid or free.
+d. Use the Software, or any part of it, in a product or service that competes
+   with Keroku.
+e. Remove or change this license or any copyright notice.
+
+3. Contributions
+
+By submitting a contribution, you grant the copyright holder a perpetual,
+worldwide, irrevocable, royalty free license to use, modify, relicense and
+distribute it as part of the Software or otherwise. You confirm you have the
+right to grant this.
+
+4. Termination
+
+Your rights under this license end automatically if you break any of its
+terms. On termination you must stop using the Software and delete every copy
+you hold.
+
+5. No warranty
+
+The Software is provided "as is", without warranty of any kind, express or
+implied, including merchantability, fitness for a particular purpose and
+non infringement.
+
+6. Limitation of liability
+
+In no event will the copyright holder be liable for any claim, damages or
+other liability arising from the Software or its use, whether in contract,
+tort or otherwise.
+
+Any use not expressly permitted above requires written permission from the
+copyright holder.
