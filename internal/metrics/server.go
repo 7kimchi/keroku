@@ -11,7 +11,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/keroku/keroku/internal/safe"
+	"github.com/7kimchi/keroku/internal/safe"
 )
 
 // Serve exposes /metrics on addr until ctx ends. addr must be on 127.0.0.1.
