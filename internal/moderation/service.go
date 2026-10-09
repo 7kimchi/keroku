@@ -25,6 +25,7 @@ type Service struct {
 	log     *slog.Logger
 	botID   string
 	now     func() time.Time
+	window  time.Duration // double submit window
 }
 
 // Deps are the service's collaborators.
@@ -43,5 +44,6 @@ func New(d Deps) *Service {
 	if d.Now == nil {
 		d.Now = time.Now
 	}
-	return &Service{store: d.Store, client: d.Client, modlog: d.Modlog, metrics: d.Metrics, log: d.Log, botID: d.BotID, now: d.Now}
+	return &Service{store: d.Store, client: d.Client, modlog: d.Modlog, metrics: d.Metrics, log: d.Log,
+		botID: d.BotID, now: d.Now, window: duplicateWindow}
 }
