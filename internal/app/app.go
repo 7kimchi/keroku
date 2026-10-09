@@ -57,12 +57,13 @@ type App struct {
 	raidSettings    *store.Cached[store.RaidSettings]
 	appID           string
 	botID           string
+	started         time.Time
 	gatewayHTTP     *http.Client // tests point the gateway at a fake
 }
 
 // New connects to Postgres, migrates and builds every component. Nothing touches the gateway yet.
 func New(ctx context.Context, cfg config.Config, log *slog.Logger) (*App, error) {
-	a := &App{cfg: cfg, log: log, metrics: metrics.New()}
+	a := &App{cfg: cfg, log: log, metrics: metrics.New(), started: time.Now()}
 	a.guard = safe.NewGuard(log, func(where string) { a.metrics.Panics.WithLabelValues(where).Inc() })
 	pool, err := store.Open(ctx, cfg.DatabaseURL.Reveal(), cfg.DBMaxConns)
 	if err != nil {
@@ -89,7 +90,7 @@ func New(ctx context.Context, cfg config.Config, log *slog.Logger) (*App, error)
 
 // assemble builds an app around an existing store and client, for tests.
 func assemble(cfg config.Config, log *slog.Logger, st *store.Store, client discord.Client) (*App, error) {
-	a := &App{cfg: cfg, log: log, metrics: metrics.New(), store: st, client: client}
+	a := &App{cfg: cfg, log: log, metrics: metrics.New(), store: st, client: client, started: time.Now()}
 	a.guard = safe.NewGuard(log, func(where string) { a.metrics.Panics.WithLabelValues(where).Inc() })
 	return a, a.build(context.Background())
 }
