@@ -40,6 +40,15 @@ func CountByKind(ctx context.Context, q store.Querier, guildID, targetID int64, 
 	return n, err
 }
 
+// CountUpTo counts a target's cases of one kind numbered at most number. Counting up to a
+// specific case keeps the answer stable when newer cases land concurrently.
+func CountUpTo(ctx context.Context, q store.Querier, guildID, targetID int64, kind Kind, number int64) (int, error) {
+	var n int
+	err := q.QueryRow(ctx, `SELECT count(*) FROM "cases" WHERE "guildId" = $1 AND "targetId" = $2 AND "kind" = $3
+		AND "number" <= $4`, guildID, targetID, string(kind), number).Scan(&n)
+	return n, err
+}
+
 // ListByKind lists a target's cases of one kind, newest first.
 func ListByKind(ctx context.Context, q store.Querier, guildID, targetID int64, kind Kind, limit int) ([]Case, error) {
 	rows, err := q.Query(ctx, `SELECT `+columns+` FROM "cases" WHERE "guildId" = $1 AND "targetId" = $2 AND "kind" = $3
