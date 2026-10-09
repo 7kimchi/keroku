@@ -62,7 +62,7 @@ func (s *Store) SetEscalationStep(ctx context.Context, guildID int64, st Escalat
 			return ErrTooManySteps
 		}
 		_, err := tx.Exec(ctx, `INSERT INTO "escalationSteps" ("guildId", "warnCount", "action", "durationSeconds")
-			VALUES ($1, $2, $3, nullif($4, 0)) ON CONFLICT ("guildId", "warnCount")
+			VALUES ($1, $2, $3, nullif($4::bigint, 0)) ON CONFLICT ("guildId", "warnCount")
 			DO UPDATE SET "action" = excluded."action", "durationSeconds" = excluded."durationSeconds"`,
 			guildID, st.WarnCount, st.Action, int64(st.Duration/time.Second))
 		return err
