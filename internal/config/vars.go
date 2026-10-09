@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/keroku/keroku/internal/validate"
+	"github.com/7kimchi/keroku/internal/validate"
 )
 
 func intVar(src Source, name string, def, minimum, maximum int) (int, error) {
