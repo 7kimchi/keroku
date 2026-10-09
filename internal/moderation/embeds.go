@@ -49,7 +49,7 @@ func CaseEmbed(c cases.Case, botID string) *discordgo.MessageEmbed {
 
 // dmEmbed is the notice sent to the member.
 func dmEmbed(a Action, guildName string, now time.Time) *discordgo.MessageEmbed {
-	b := embeds.New(dmTitle(a.Kind) + " " + embeds.Escape(guildName)).Field("Reason", reasonText(a.Reason), false)
+	b := embeds.New(dmTitle(a.Kind)+" "+embeds.Escape(guildName)).Field("Reason", reasonText(a.Reason), false)
 	if a.Duration > 0 {
 		b.Field("Duration", embeds.Duration(a.Duration), true).Field("Ends", embeds.Relative(now.Add(a.Duration)), true)
 	}
