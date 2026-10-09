@@ -15,6 +15,7 @@ import (
 	"github.com/7kimchi/keroku/internal/commands"
 	"github.com/7kimchi/keroku/internal/config"
 	"github.com/7kimchi/keroku/internal/discord"
+	"github.com/7kimchi/keroku/internal/eventlog"
 	"github.com/7kimchi/keroku/internal/metrics"
 	"github.com/7kimchi/keroku/internal/moderation"
 	"github.com/7kimchi/keroku/internal/modlog"
@@ -50,6 +51,7 @@ type App struct {
 	clean      *cleanup.Service
 	automod    *automod.Engine
 	raid       *raid.Detector
+	eventlog   *eventlog.Logger
 
 	automodSettings *store.Cached[store.AutomodSettings]
 	raidSettings    *store.Cached[store.RaidSettings]
