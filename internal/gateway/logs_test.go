@@ -11,6 +11,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 
 	"github.com/7kimchi/keroku/internal/discord"
+	"github.com/7kimchi/keroku/internal/gatewaytest"
 	"github.com/7kimchi/keroku/internal/logging"
 )
 
@@ -43,12 +44,9 @@ func TestErrText(t *testing.T) {
 }
 
 func TestOpenFailsCleanlyWithBadToken(t *testing.T) {
-	f := newFakeGateway(t, 1)
-	f.srv.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusUnauthorized)
-		_, _ = w.Write([]byte(`{"message":"401: Unauthorized","code":0}`))
-	})
-	gw := New(Config{Token: "fake.test.token", HTTPClient: f.client()}, &recorder{}, nil, slog.New(slog.DiscardHandler))
+	f := gatewaytest.New(t, 1)
+	f.Reject = true
+	gw := New(Config{Token: "fake.test.token", HTTPClient: f.Client()}, &recorder{}, nil, slog.New(slog.DiscardHandler))
 	err := gw.Open(t.Context())
 	if err == nil || strings.Contains(err.Error(), "fake.test.token") {
 		t.Fatalf("got %v", err)
