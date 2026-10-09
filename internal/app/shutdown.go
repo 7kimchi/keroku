@@ -9,7 +9,8 @@ import (
 	"github.com/7kimchi/keroku/internal/gateway"
 )
 
-// shutdown stops intake first, then drains queued work, then background jobs, then the pool.
+// shutdown stops intake first, then drains queued commands, then background jobs, then the
+// modlog queue they feed, then the pool.
 func (a *App) shutdown(parent context.Context, gw *gateway.Gateway, stopBackground context.CancelFunc, bg *sync.WaitGroup) error {
 	a.log.Info("shutting down", "timeout", a.cfg.ShutdownTimeout.String())
 	// parent is already cancelled when shutdown starts, so only its values are kept.
@@ -17,9 +18,10 @@ func (a *App) shutdown(parent context.Context, gw *gateway.Gateway, stopBackgrou
 	defer cancel()
 	gw.Close()
 	// Ack jobs feed the lanes, so the ack pool drains first.
-	err := errors.Join(a.ack.Close(ctx), a.lanes.Close(ctx), a.modlog.Close(ctx))
+	err := errors.Join(a.ack.Close(ctx), a.lanes.Close(ctx))
 	stopBackground()
 	bg.Wait()
+	err = errors.Join(err, a.modlog.Close(ctx))
 	a.store.Close()
 	a.log.Info("shutdown complete")
 	return err
