@@ -44,6 +44,7 @@ func (a *App) housekeeping(ctx context.Context) {
 			a.raidSettings.Sweep()
 			a.automod.Sweep()
 			a.raid.Sweep()
+			a.eventlog.Sweep()
 			a.metrics.QueueDepth.WithLabelValues("events").Set(float64(a.events.Depth()))
 			a.metrics.QueueDepth.WithLabelValues("modlog").Set(float64(a.modlog.Depth()))
 			a.metrics.QueueDepth.WithLabelValues("ack").Set(float64(a.ack.Depth()))
