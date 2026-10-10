@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Builds and runs Keroku in this terminal. Every log line prints here. Ctrl+C shuts it down cleanly.
+# Reads .env if present. Without a database url it starts the local Postgres from scripts/testDb.sh.
+set -euo pipefail
+cd "$(dirname "$0")"
+if [ -f .env ]; then
+  set -a
+  . ./.env
+  set +a
+fi
+token="${DISCORD_TOKEN:-${KEROKU_SECRET:-}}"
+if [ -z "$token" ] && [ -z "${DISCORD_TOKEN_FILE:-}" ]; then
+  echo "keroku: set DISCORD_TOKEN, or KEROKU_SECRET in .env" >&2
+  exit 1
+fi
+dbUrl="${DATABASE_URL:-${KEROKU_DB_URL:-}}"
+if [ -z "$dbUrl" ] && [ -z "${DATABASE_URL_FILE:-}" ]; then
+  echo "keroku: starting local Postgres" >&2
+  admin="$(scripts/testDb.sh start)"
+  if ! psql "$admin" -Atc "SELECT 1 FROM pg_database WHERE datname = 'keroku'" | grep -q 1; then
+    psql "$admin" -qc 'CREATE DATABASE keroku'
+  fi
+  dbUrl="$(printf %s "$admin" | sed 's#/postgres?#/keroku?#')"
+fi
+if pgrep -qf '(^|/)bin/keroku$'; then
+  echo "keroku: already running (pid $(pgrep -f '(^|/)bin/keroku$' | head -1)). Stop it first." >&2
+  exit 1
+fi
+echo "keroku: building" >&2
+go build -o bin/keroku ./cmd/keroku
+if [ -n "$token" ]; then
+  DISCORD_TOKEN="$(printf %s "$token" | tr -d '[:space:]')"
+  export DISCORD_TOKEN
+fi
+if [ -n "$dbUrl" ]; then
+  export DATABASE_URL="$dbUrl"
+fi
+export LOG_LEVEL="${LOG_LEVEL:-debug}"
+unset KEROKU_SECRET KEROKU_DB_URL token dbUrl admin
+echo "keroku: running, log level $LOG_LEVEL. Ctrl+C to stop." >&2
+exec ./bin/keroku
