@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Fails if any tracked or new file is over 100 lines. go.sum, CLAUDE.md and generated files are exempt.
+# Fails if any tracked or new file is over 100 lines. go.sum and generated files are exempt.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 maxLines=100
 failed=0
 while IFS= read -r -d '' file; do
   case "$file" in
-    go.sum|CLAUDE.md) continue ;;
+    go.sum) continue ;;
   esac
   [ -f "$file" ] || continue
   if head -n 5 "$file" | grep -q '^// Code generated .* DO NOT EDIT\.$'; then
