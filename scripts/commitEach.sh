@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 while IFS='|' read -r path message; do
   [ -n "$path" ] || continue
-  if [ -f "$path" ] && [ "$path" != CLAUDE.md ] && [ "$path" != go.sum ] && [ "$(awk 'END { print NR }' "$path")" -gt 100 ]; then
+  if [ -f "$path" ] && [ "$path" != go.sum ] && [ "$(awk 'END { print NR }' "$path")" -gt 100 ]; then
     echo "refusing $path: over 100 lines" >&2
     exit 1
   fi
