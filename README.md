@@ -14,6 +14,8 @@ export DATABASE_URL=postgres://keroku@db/keroku
 go run ./cmd/keroku
 ```
 
+Locally, `./keroku` does it in one step. It reads the token from `.env`, starts the local Postgres from `scripts/testDb.sh` when no `DATABASE_URL` is set, builds, and runs in the foreground with debug logs. Ctrl+C stops it cleanly.
+
 The schema is migrated on startup. Several instances can start at once: migrations take a Postgres advisory lock. Every setting is listed in [docs/config.md](docs/config.md). Deployment, sharding and metrics are in [docs/operations.md](docs/operations.md).
 
 ## Commands
